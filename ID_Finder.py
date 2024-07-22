@@ -1,4 +1,4 @@
-from sklearn.metrics import precision_score
+from sklearn.metrics import accuracy_score, f1_score
 import pandas as pd
 
 
@@ -15,10 +15,11 @@ def id_finder(data, stage, model_type):
             pred_id = test.loc[test['pred'] == 1, 'id']
             pred_id = ';'.join(pred_id.astype(str))
             # 计算精确率
-            prec = precision_score(test['interviewed'], test['pred'])
+            acc = accuracy_score(test['interviewed'], test['pred'])
+            f1 = f1_score(test['interviewed'], test['pred'])
             # 将结果添加到列表中
             result.append({'task_id': task_id, 'Actual_ID': actual_id,
-                           'Predicted_ID': pred_id, 'Precision': prec})
+                           'Predicted_ID': pred_id, 'Accuracy': acc, 'Recall': f1})
     if stage == 2:
         # 提取每个task_id对应信息
         for task_id in data['task_id'].unique():
@@ -29,16 +30,17 @@ def id_finder(data, stage, model_type):
             pred_id = test.loc[test['pred'] == 1, 'id']
             pred_id = ';'.join(pred_id.astype(str))
             # 计算精确率
-            prec = precision_score(test['selected'], test['pred'])
+            acc = accuracy_score(test['selected'], test['pred'])
+            f1 = f1_score(test['selected'], test['pred'])
             # 将结果添加到列表中
             result.append({'task_id': task_id, 'Actual_ID': actual_id,
-                           'Predicted_ID': pred_id, 'Precision': prec})
+                           'Predicted_ID': pred_id, 'Accuracy': acc, 'Recall': f1})
     # 将结果转为数据集
     result = pd.DataFrame(result)
-    if model_type == 'XGBoost':
-        result.rename(columns={'Predicted_ID': 'Predicted_ID_XGBoost',
-                               'Precision_ID': 'Precision_XGBoost'}, inplace=True)
-    elif model_type == 'DeepSeek':
-        result.rename(columns={'Predicted_ID': 'Predicted_ID_DeepSeek',
-                               'Precision_ID': 'Precision_DeepSeek'}, inplace=True)
+    # if model_type == 'XGBoost':
+    #     result.rename(columns={'Predicted_ID': 'Predicted_ID_XGBoost',
+    #                            'Accuracy': 'Accuracy_XGBoost'}, inplace=True)
+    # elif model_type == 'DeepSeek':
+    #     result.rename(columns={'Predicted_ID': 'Predicted_ID_DeepSeek',
+    #                            'Precision_ID': 'Precision_DeepSeek'}, inplace=True)
     return result

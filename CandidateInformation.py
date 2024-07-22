@@ -10,7 +10,8 @@ def candidate_information(task_data, edu_data, work_data):
         he_she = "He" if row['gender_final'] == "Male" else "She"
         his_her = "His" if row['gender_final'] == "Male" else "Her"
         candidate_info = (
-            f'"Candidate ID: {row["id"]}, {he_she} is a {row["age"]} years old citizen of {row["nationality_final"]}. '
+            f'Candidate ID: {row["id"]}, {he_she} is a citizen of {row["nationality_final"]}. '
+            f'{his_her} age is {row["age"]}. '
         )
 
         # 语言能力
@@ -58,17 +59,17 @@ def candidate_information(task_data, edu_data, work_data):
             current_job_str = " and ".join(current_jobs)
             candidate_info += f'{his_her} current job is {current_job_str} related.'
 
-        candidate_info += f' {his_her} educational background is as following: '
+        candidate_info += f' {his_her} educational background is as following:\n'
 
         for _, edu_row in edu_data.iterrows():
             if edu_row['id'] == id:
-                candidate_info += edu_row['eduinfo'] + ';'
+                candidate_info += edu_row['eduinfo'] + '\n'
 
-        candidate_info += f' {his_her} working background is as following: '
+        candidate_info += f' {his_her} working background is as following:\n'
 
         for _, work_row in work_data.iterrows():
             if work_row['id'] == id:
-                candidate_info += work_row['workinfo'] + ';'
+                candidate_info += work_row['workinfo'] + '\n'
 
         description += candidate_info + '\n'
 

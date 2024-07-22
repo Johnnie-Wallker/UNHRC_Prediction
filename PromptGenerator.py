@@ -44,7 +44,7 @@ def prompt_generator(data, education, work, task_id, stage, train, summary):
             # 生成提示语开头
             row = task_data.iloc[0]
             description = (
-                f'"You are a member of the UNHRC, based on the information of candidates, '
+                f'You are a member of the UNHRC, based on the information of candidates, '
                 f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
                 f'Before selecting the candidates, this mandate has been mentioned in previous UNHRC meetings.\n'
                 f'The candidates information in these meetings are:\n'
@@ -53,8 +53,8 @@ def prompt_generator(data, education, work, task_id, stage, train, summary):
                 f'please select {row["count"]} candidates using the candidates information below.\n'
                 f'Give the ID numbers of the candidates that you have selected,'
                 f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.'
-                f'Please respond with the following format: @@@ The candidates ID are: @@@"\n'
-                f'"The candidates information are:"\n'
+                f'Please respond with the following format: @@@ The candidates ID are: @@@\n'
+                f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
         if summary:
@@ -63,7 +63,7 @@ def prompt_generator(data, education, work, task_id, stage, train, summary):
             # 大模型回复
             response = client.chat.completions.create(
                 model="deepseek-chat",
-                temperature=1,
+                temperature=0.7,
                 messages=[
                     {"role": "user", "content": f'Using the candidates information below, '
                                                 f'please summarise what makes a candidate '
@@ -79,7 +79,7 @@ def prompt_generator(data, education, work, task_id, stage, train, summary):
             summary = response.choices[0].message.content
             # 生成提示语开头
             description = (
-                f'"You are a member of the UNHRC, based on the information of candidates, '
+                f'You are a member of the UNHRC, based on the information of candidates, '
                 f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
                 f'Before selecting the candidates, this mandate has been mentioned in previous UNHRC meetings.\n'
                 f'Here is the commentary summary of the selected candidates in these previous UNHRC meetings:\n'
@@ -88,21 +88,21 @@ def prompt_generator(data, education, work, task_id, stage, train, summary):
                 f'candidates using the candidates information below.\n'
                 f'Give the ID numbers of the candidates that you have selected,'
                 f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.'
-                f'Please respond with the following format: @@@ The candidates ID are: @@@"\n'
-                f'"The candidates information are:"\n'
+                f'Please respond with the following format: @@@ The candidates ID are: @@@\n'
+                f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
     else:
         # 生成提示语开头
         row = task_data.iloc[0]
         description = (
-            f'"You are a member of the UNHRC, based on the information of candidates, '
+            f'You are a member of the UNHRC, based on the information of candidates, '
             f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
             f'Please select {row["count"]} candidates using the candidates information below.\n'
             f'Give the ID numbers of the candidates that you have selected,'
             f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.'
-            f'Please respond with the following format: @@@ The candidates ID are: @@@"\n'
-            f'"The candidates information are:"\n'
+            f'Please respond with the following format: @@@ The candidates ID are: @@@\n'
+            f'The candidates information are:\n'
         )
         description += candidate_information(task_data, edu_data, work_data) + "\n"
 
