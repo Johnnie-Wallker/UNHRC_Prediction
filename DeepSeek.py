@@ -7,8 +7,6 @@ import re
 
 # 读取数据
 data = pd.read_csv('df.csv')
-data = data.fillna(0)
-data['age'] = data['age'].replace(0,'Unknown')
 # data = data[data['interviewed'] == 1]
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
@@ -20,7 +18,7 @@ id_pred_map = {id_: 0 for id_ in data['id'].unique()}
 # 遍历每个任务ID
 for task_id in data['task_id'].unique():
     # 生成提示语
-    task_description = prompt_generator(data, education, work, task_id, stage=1, train=True, summary=True)
+    task_description = prompt_generator(data, education, work, task_id, stage=1, type='Template')
     # 大模型回复
     response = client.chat.completions.create(
         model="deepseek-chat",
