@@ -31,9 +31,9 @@ def tree_to_conditions(tree, feature_names, target_class=1):
 
 
 def ruleset_generator(train_data):
-    X = train_data.drop(['id', 'mandate', 'nationality_final', 'selected', 'task_id', 'interviewed'], axis=1)
+    X = train_data.drop(['id', 'mandate', 'nationality_final', 'task_id', 'interviewed'], axis=1)
     y = train_data['interviewed']
-    tree = DecisionTreeClassifier(max_depth=4, random_state=1)
+    tree = DecisionTreeClassifier(max_depth=2, random_state=1)
     tree.fit(X, y)
     conditions = tree_to_conditions(tree, X.columns, target_class=1)
     condition = conditions[0]
@@ -48,21 +48,23 @@ def ruleset_generator(train_data):
         messages=[
             {"role": "user", "content": f'Please convert {rule} into a concise paragraph. '
                                         f'The meaning of the keys are:\n'
-                                        f'Language abilities: For these, the numbers are from 0-3, representing '
-                                        f'No, Low, Intermediate, High respectively.\n'
+                                        f'Gender: 0 for female and 1 for male.\n'
+                                        f'Language abilities: The values 0, 1, 2, 3 represent '
+                                        f'No, Low, Intermediate and High respectively.\n'
                                         f'Flags: If there is no "current" in the key, then this represents whether '
                                         f'the candidate has this background(0 for no, 1 for yes). '
-                                        f'If there is a "current" in the key, then this represents whether the '
-                                        f'current job of this candidate is this related(0 for no, 1 for yes).\n'
+                                        f'If there is a "current" in the key, then this represents whether the current '
+                                        f'job of this candidate is related to this field (0 for no, 1 for yes).\n'
                                         f'The flag name representations are: \n'
                                         f'law/la represents law; academic represents academic; '
                                         f'church represents religious, firm represents company, '
                                         f'state represents government, internationalorg represents IGO, '
                                         f'ngo represents NGO.\n'
-                                        f'Please do not explain the relation of the condition I have given you and '
-                                        f'the paragraph you give in any means, simply rewrite the condition in plain '
-                                        f'english text, replacing any keys with meaningful terms '
-                                        f'like I have explained above.'},
+                                        f'Please do not include the keys of the original condition '
+                                        f'nor explain why this condition is true in any means, '
+                                        f'simply rewrite the condition in plain '
+                                        f'english text that is straightforward to anyone that does not know this data'
+                                        f', replacing any keys with meaningful terms.'},
         ],
         stream=False
     )
