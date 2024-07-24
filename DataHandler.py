@@ -19,8 +19,9 @@ def data_handler(data, stage):
         data = data.drop(columns='selected')
     else:
         data = data[data['interviewed'] == 1]
-        data['count'] = 1
         data = data.drop(columns='interviewed')
+        data['count'] = data.groupby('task_id')['selected'].transform('sum')
+        data = data[data['count'] != 0]
         data = data.rename(columns={'selected': 'interviewed'})
 
     return data

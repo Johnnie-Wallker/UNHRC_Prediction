@@ -33,7 +33,7 @@ def tree_to_conditions(tree, feature_names, target_class=1):
 def ruleset_generator(train_data):
     X = train_data.drop(['id', 'mandate', 'nationality_final', 'task_id', 'interviewed'], axis=1)
     y = train_data['interviewed']
-    tree = DecisionTreeClassifier(max_depth=2, random_state=1)
+    tree = DecisionTreeClassifier(max_depth=3, random_state=1)
     tree.fit(X, y)
     conditions = tree_to_conditions(tree, X.columns, target_class=1)
     condition = conditions[0]

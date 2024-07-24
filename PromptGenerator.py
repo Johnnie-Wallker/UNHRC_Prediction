@@ -48,10 +48,10 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'The candidates information in these meetings are:\n'
                 f'{information}\n'
                 f'Now that you have had some experience with this task,'
-                f'please select {row["count"]} candidates using the candidates information below.\n'
+                f'please select EXACTLY {row["count"]} candidates using the candidates information below.\n'
                 f'Give the ID numbers of the candidates that you have selected,'
                 f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
-                f'Please respond with the following format: @@@ The candidates ID are: @@@\n'
+                f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
                 f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
@@ -82,11 +82,11 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'Before selecting the candidates, this mandate has been mentioned in previous UNHRC meetings.\n'
                 f'Here is the commentary summary of the selected candidates in these previous UNHRC meetings:\n'
                 f'{summary}\n'
-                f'Referring to this information, please select {row["count"]} '
+                f'Referring to this information, please select EXACTLY {row["count"]} '
                 f'candidates using the candidates information below.\n'
                 f'Give the ID numbers of the candidates that you have selected,'
                 f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.'
-                f'Please respond with the following format: @@@ The candidates ID are: @@@\n'
+                f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
                 f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
@@ -100,11 +100,11 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'You are a member of the UNHRC, based on the information of candidates, '
                 f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
                 f'From previous knowledge, we know that {ruleset} '
-                f'Take this as a reference (and only as a reference) for helping you selecting suitable candidates.\n'
-                f'Please select {row["count"]} candidates using the candidates information below.\n'
+                f'Take this as a reference (and only as a reference) for selecting the suitable candidates.\n'
+                f'Please select EXACTLY {row["count"]} candidates using the candidates information below.\n'
                 f'Give the ID numbers of the candidates that you have selected,'
                 f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.'
-                f'Please respond with the following format: @@@ The candidates ID are: @@@\n'
+                f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
                 f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
@@ -114,10 +114,10 @@ def prompt_generator(data, education, work, task_id, prompt_type):
         description = (
             f'You are a member of the UNHRC, based on the information of candidates, '
             f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
-            f'Please select {row["count"]} candidates using the candidates information below.\n'
+            f'Please select EXACTLY {row["count"]} candidates using the candidates information below.\n'
             f'Give the ID numbers of the candidates that you have selected,'
             f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.'
-            f'Please respond with the following format: @@@ The candidates ID are: @@@\n'
+            f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
             f'The candidates information are:\n'
         )
         description += candidate_information(task_data, edu_data, work_data) + "\n"

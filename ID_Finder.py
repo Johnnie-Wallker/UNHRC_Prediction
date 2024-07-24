@@ -2,7 +2,7 @@ from sklearn.metrics import accuracy_score, f1_score
 import pandas as pd
 
 
-def id_finder(data, model_type):
+def id_finder(data, model_type, stage):
     # 创建空白列表
     result = []
     # 提取每个task_id对应信息
@@ -25,4 +25,4 @@ def id_finder(data, model_type):
                            'Accuracy': f'Accuracy_{model_type}',
                            'Recall': f'Recall_{model_type}'},
                   inplace=True)
-    result.to_csv(f'result_{model_type}.csv', index=False)
+    result.to_csv(f'Result_Round{stage}/result_{model_type}.csv', index=False)
