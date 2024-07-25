@@ -57,15 +57,15 @@ def candidate_information(task_data, edu_data, work_data):
 
         if current_jobs:
             current_job_str = " and ".join(current_jobs)
-            candidate_info += f'{his_her} current job is {current_job_str} related.'
+            candidate_info += f'{his_her} current job is {current_job_str} related.\n'
 
-        candidate_info += f' {his_her} educational background is as following:\n'
+        candidate_info += f'{his_her} educational background is as following:\n'
 
         for _, edu_row in edu_data.iterrows():
             if edu_row['id'] == id:
                 candidate_info += edu_row['eduinfo'] + '\n'
 
-        candidate_info += f' {his_her} working background is as following:\n'
+        candidate_info += f'{his_her} working background is as following:\n'
 
         for _, work_row in work_data.iterrows():
             if work_row['id'] == id:

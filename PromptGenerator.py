@@ -11,13 +11,14 @@ def prompt_generator(data, education, work, task_id, prompt_type):
     description = ''
     # 填充空缺值
     data = data.fillna(0)
+    data.iloc[:, 4:24] = data.iloc[:, 4:24].astype('int')
     # 提取对应task_id的数据
     task_data = data[data['task_id'] == task_id]
     # 替换年龄空缺值
     task_data['age'] = task_data['age'].replace(0, 'Unknown')
     # 对语言能力进行替换
     replace_dict = {3: 'high', 2: 'intermediate', 1: 'low', 0: 'no'}
-    task_data.iloc[:, 6:12] = task_data.iloc[:, 6:12].map(replace_dict.get)
+    task_data.iloc[:, 5:11] = task_data.iloc[:, 5:11].map(replace_dict.get)
     edu_data = education[education['id'].isin(task_data['id'])]
     work_data = work[work['id'].isin(task_data['id'])]
     # 提取每个职位对应的全部task_id
@@ -47,9 +48,9 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'Before selecting the candidates, this mandate has been mentioned in previous UNHRC meetings.\n'
                 f'The candidates information in these meetings are:\n'
                 f'{information}\n'
-                f'Now that you have had some experience with this task,'
+                f'Now that you have had some experience with this task, '
                 f'please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
-                f'Give the ID numbers of the candidates that you have selected,'
+                f'Give the ID numbers of the candidates that you have selected, '
                 f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
                 f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
                 f'The candidates information are:\n'
@@ -86,8 +87,8 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'{summary}\n'
                 f'Referring to this information, please select "EXACTLY {row["count"]} candidates" '
                 f'using the candidates information below.\n'
-                f'Give the ID numbers of the candidates that you have selected,'
-                f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.'
+                f'Give the ID numbers of the candidates that you have selected, '
+                f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
                 f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
                 f'The candidates information are:\n'
             )
@@ -106,8 +107,8 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'From previous knowledge, we know that {ruleset} '
                 f'Take this as a reference (and only as a reference) for selecting the suitable candidates.\n'
                 f'Please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
-                f'Give the ID numbers of the candidates that you have selected,'
-                f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.'
+                f'Give the ID numbers of the candidates that you have selected, '
+                f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
                 f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
                 f'The candidates information are:\n'
             )
@@ -121,8 +122,8 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             f'You are a member of the UNHRC, based on the information of candidates, '
             f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
             f'Please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
-            f'Give the ID numbers of the candidates that you have selected,'
-            f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.'
+            f'Give the ID numbers of the candidates that you have selected, '
+            f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
             f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
             f'The candidates information are:\n'
         )
