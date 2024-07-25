@@ -24,5 +24,6 @@ def evaluate_model(model, data):
         # 提取结果
         for i in range(test.shape[0]):
             result.append({'id': test['id'].tolist()[i], 'pred': test['pred'].tolist()[i]})
+        print(task_id)
 
     return result

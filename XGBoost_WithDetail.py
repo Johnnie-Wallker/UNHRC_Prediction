@@ -8,7 +8,7 @@ from ID_Finder import id_finder
 
 # 读取数据
 data = pd.read_excel('data.xlsx')
-stage = 2
+stage = 1
 data = data_handler(data, stage)
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
@@ -39,8 +39,8 @@ print('准确率为：', acc)
 print('召回率为：', f1)
 # 获取具体ID信息
 id_finder(data, 'XGBoost_WithDetail', stage)
-# 1轮准确率为： 0.6850921273031826
-# 1轮召回率为： 0.5246523388116309
+# 简历筛选轮：
+# 准确率为： 0.6867671691792295 召回率为： 0.527180783817952
 
-# 2轮准确率为： 0.6583034647550776
-# 2轮召回率为： 0.2393617021276596
+# 面试轮：
+# 准确率为： 0.6650602409638554 召回率为： 0.25668449197860965
