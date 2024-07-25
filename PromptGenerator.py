@@ -3,6 +3,7 @@ import pandas as pd
 from openai import OpenAI
 from CandidateInformation import candidate_information
 from RuleSet import ruleset_generator
+from Prototype import prototype_generator
 warnings.simplefilter(action='ignore', category=FutureWarning)
 pd.options.mode.copy_on_write = True
 
@@ -105,6 +106,26 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'You are a member of the UNHRC, based on the information of candidates, '
                 f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
                 f'From previous knowledge, we know that {ruleset} '
+                f'Take this as a reference (and only as a reference) for selecting the suitable candidates.\n'
+                f'Please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
+                f'Give the ID numbers of the candidates that you have selected, '
+                f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
+                f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
+                f'The candidates information are:\n'
+            )
+            description += candidate_information(task_data, edu_data, work_data) + "\n"
+            description += (f'Remember you need to select EXACTLY {row["count"]} and only {row["count"]} '
+                            f'candidates from the candidates information above.')
+        if prompt_type == 'Prototype':
+            train_data = data[
+                data['task_id'].isin(task_id_map.loc[task_id_map['task_id'] == task_id, 'related_task_ids'].values[0])]
+            prototype = prototype_generator(train_data)
+            # 生成提示语开头
+            row = task_data.iloc[0]
+            description = (
+                f'You are a member of the UNHRC, based on the information of candidates, '
+                f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
+                f'From previous knowledge, we know that {prototype} '
                 f'Take this as a reference (and only as a reference) for selecting the suitable candidates.\n'
                 f'Please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
                 f'Give the ID numbers of the candidates that you have selected, '

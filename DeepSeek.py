@@ -20,7 +20,7 @@ id_pred_map = {id_: 0 for id_ in data['id'].unique()}
 # 遍历每个任务ID
 for task_id in data['task_id'].unique():
     # 生成提示语
-    task_description = prompt_generator(data, education, work, task_id, prompt_type='None')
+    task_description = prompt_generator(data, education, work, task_id, prompt_type='Prototype')
     # 大模型回复
     response = client.chat.completions.create(
         model="deepseek-chat",
@@ -47,7 +47,7 @@ acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print(f'准确率为：{acc} 召回率为：{f1}')
 # 将结果转为数据集
-id_finder(data, 'DeepSeek(NoDetail)', stage)
+id_finder(data, 'DeepSeek_Prototype', stage)
 
 # 简历筛选轮：
 # 1.无样例 准确率为：0.6499162479061976 召回率为：0.4715549936788875
