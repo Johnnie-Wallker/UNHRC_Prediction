@@ -20,7 +20,7 @@ id_pred_map = {id_: 0 for id_ in data['id'].unique()}
 # 遍历每个任务ID
 for task_id in data['task_id'].unique():
     # 生成提示语
-    task_description = prompt_generator(data, education, work, task_id, prompt_type='RuleSet')
+    task_description = prompt_generator(data, education, work, task_id, prompt_type='None')
     # 大模型回复
     response = client.chat.completions.create(
         model="deepseek-chat",
@@ -47,11 +47,11 @@ acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print(f'准确率为：{acc} 召回率为：{f1}')
 # 将结果转为数据集
-id_finder(data, 'DeepSeek_RuleSet', stage)
+id_finder(data, 'DeepSeek(NoDetail)', stage)
 
 # 简历筛选轮：
-# 1.无样例 准确率为：0.6465661641541038 召回率为：0.4664981036662453
-# 2.有样例 准确率为：0.6440536013400335 召回率为：0.46270543615676357
+# 1.无样例 准确率为：0.6499162479061976 召回率为：0.4715549936788875
+# 2.有样例 准确率为：0.6390284757118928 召回率为：0.45512010113780027
 # 3.无样例(细节) 准确率为：0.7018425460636516 召回率为：0.549936788874842
 # 4.有样例(细节) 准确率为：0.7043551088777219 召回率为：0.5537294563843237
 # 5.有总结文本(细节) 准确率为：0.6859296482412061 召回率为：0.5259165613147914
