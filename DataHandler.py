@@ -10,9 +10,6 @@ def data_handler(data, stage):
     # 生成是否进面试信息
     data['interviewed'] = np.where(data['category'] == 'Eligible', 0, 1)
     data = data.drop(columns='category')
-    # 将文本转化为类别
-    data['nationality_final'] = data['nationality_final'].astype('category')
-    data['mandate'] = data['mandate'].astype('category')
     if stage == 1:
         data['count'] = data.groupby('task_id')['interviewed'].transform('sum')
         data = data.groupby('task_id').filter(lambda x: len(x) != x['count'].iloc[0])
@@ -23,5 +20,8 @@ def data_handler(data, stage):
         data['count'] = data.groupby('task_id')['selected'].transform('sum')
         data = data[data['count'] != 0]
         data = data.rename(columns={'selected': 'interviewed'})
+    # 将文本转化为类别
+    data['nationality_final'] = data['nationality_final'].astype('category')
+    data['mandate'] = data['mandate'].astype('category')
 
     return data

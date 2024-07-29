@@ -16,7 +16,8 @@ education = education[['id', 'degree_raw', 'major_final', 'university_final', 'c
 work = work[['id', 'title', 'orz', 'country_final']]
 education = education.dropna()
 work = work.dropna()
-education = (pd.get_dummies(education, columns=education.columns.difference(['id'])).groupby('id').max().reset_index().astype(int))
+education = pd.get_dummies(education,
+                           columns=education.columns.difference(['id'])).groupby('id').max().reset_index().astype(int)
 data = pd.merge(data, education, on='id', how='outer')
 data = data.dropna(subset=['interviewed'])
 work = pd.get_dummies(work, columns=work.columns.difference(['id'])).groupby('id').max().reset_index().astype(int)

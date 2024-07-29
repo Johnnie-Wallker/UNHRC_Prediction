@@ -32,6 +32,8 @@ def prompt_generator(data, education, work, task_id, prompt_type):
     task_id_map = pd.DataFrame(task_id_map.items(), columns=['task_id', 'related_task_ids'])
     if prompt_type != 'None' and task_id in task_id_map.loc[:, 'task_id'].values:
         information = ''
+        train_data = data[
+            data['task_id'].isin(task_id_map.loc[task_id_map['task_id'] == task_id, 'related_task_ids'].values[0])]
         for candidate_id in task_id_map.loc[task_id_map['task_id'] == task_id, 'related_task_ids'].values[0]:
             task_data_new = data[data['task_id'] == candidate_id]
             edu_data_new = education[education['id'].isin(task_data_new['id'])]
@@ -97,17 +99,15 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description += (f'Remember you need to select EXACTLY {row["count"]} and only {row["count"]} '
                             f'candidates from the candidates information above.')
         if prompt_type == 'RuleSet':
-            train_data = data[
-                data['task_id'].isin(task_id_map.loc[task_id_map['task_id'] == task_id, 'related_task_ids'].values[0])]
             ruleset = ruleset_generator(train_data)
             # 生成提示语开头
             row = task_data.iloc[0]
             description = (
                 f'You are a member of the UNHRC, based on the information of candidates, '
                 f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
-                f'From previous knowledge, we know that {ruleset} '
-                f'Take this as a reference (and only as a reference) for selecting the suitable candidates.\n'
-                f'Please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
+                f'From previous knowledge, we know that {ruleset}\n'
+                f'Taking this as a reference (and only as a reference) for selecting the suitable candidates, '
+                f'please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
                 f'Give the ID numbers of the candidates that you have selected, '
                 f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
                 f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
@@ -117,17 +117,15 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description += (f'Remember you need to select EXACTLY {row["count"]} and only {row["count"]} '
                             f'candidates from the candidates information above.')
         if prompt_type == 'Prototype':
-            train_data = data[
-                data['task_id'].isin(task_id_map.loc[task_id_map['task_id'] == task_id, 'related_task_ids'].values[0])]
             prototype = prototype_generator(train_data)
             # 生成提示语开头
             row = task_data.iloc[0]
             description = (
                 f'You are a member of the UNHRC, based on the information of candidates, '
                 f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
-                f'From previous knowledge, we know that {prototype} '
-                f'Take this as a reference (and only as a reference) for selecting the suitable candidates.\n'
-                f'Please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
+                f'From previous knowledge, we know that {prototype}\n'
+                f'Taking this as a reference (and only as a reference) for selecting the suitable candidates, '
+                f'please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
                 f'Give the ID numbers of the candidates that you have selected, '
                 f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
                 f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'

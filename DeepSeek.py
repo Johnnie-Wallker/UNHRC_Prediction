@@ -8,7 +8,7 @@ import re
 
 # 读取数据
 data = pd.read_excel('data.xlsx')
-stage = 1
+stage = 2
 data = data_handler(data, stage)
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
@@ -56,6 +56,7 @@ id_finder(data, 'DeepSeek_Prototype', stage)
 # 4.有样例(细节) 准确率为：0.7043551088777219 召回率为：0.5537294563843237
 # 5.有总结文本(细节) 准确率为：0.6859296482412061 召回率为：0.5259165613147914
 # 6.RuleSet(细节) 准确率为：0.6595477386934674 召回率为：0.4857685009487666
+# 7.Prototype(细节) 准确率为：0.6654103852596315 召回率为：0.4946236559139785
 
 # 面试轮：
 # 1.无样例 准确率为：0.6506024096385542 召回率为：0.22459893048128343

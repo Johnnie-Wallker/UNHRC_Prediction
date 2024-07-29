@@ -6,7 +6,7 @@ def candidate_information(task_data, edu_data, work_data):
     description = ''
     # 将每名参选者的信息添加
     for _, row in task_data.iterrows():
-        id = row['id']
+        candidate_id = row['id']
         he_she = "He" if row['gender_final'] == "Male" else "She"
         his_her = "His" if row['gender_final'] == "Male" else "Her"
         candidate_info = (
@@ -62,13 +62,13 @@ def candidate_information(task_data, edu_data, work_data):
         candidate_info += f'{his_her} educational background is as following:\n'
 
         for _, edu_row in edu_data.iterrows():
-            if edu_row['id'] == id:
+            if edu_row['id'] == candidate_id:
                 candidate_info += edu_row['eduinfo'] + '\n'
 
         candidate_info += f'{his_her} working background is as following:\n'
 
         for _, work_row in work_data.iterrows():
-            if work_row['id'] == id:
+            if work_row['id'] == candidate_id:
                 candidate_info += work_row['workinfo'] + '\n'
 
         description += candidate_info + '\n'
