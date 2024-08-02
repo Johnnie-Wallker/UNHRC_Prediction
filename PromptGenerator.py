@@ -40,7 +40,7 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             work_data_new = work[work['id'].isin(task_data_new['id'])]
             shortlisted_ids = task_data_new[task_data_new['interviewed'] == 1]['id'].tolist()
             information += (f"{candidate_information(task_data_new, edu_data_new, work_data_new)}"
-                            f"In this case, the candidates that were shortlisted are: "
+                            f"The candidates that were shortlisted in this meeting are: "
                             f"{', '.join(map(str, shortlisted_ids))}.\n")
         if prompt_type == 'Train':
             # 生成提示语开头
@@ -52,15 +52,16 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'The candidates information in these meetings are:\n'
                 f'{information}\n'
                 f'Now that you have had some experience with this task, '
-                f'please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
-                f'Give the ID numbers of the candidates that you have selected, '
-                f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
-                f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
-                f'The candidates information are:\n'
+                f'please rank these candidates based on how suitable they are for this mandate. '
+                f'Rank them from 1 to {len(task_data)}, where 1 stands for the most suitable '
+                f'and {len(task_data)} stands for the least suitable. '
+                f'Please respond with the following format: @@@ Rank i: Candidate ID: @@@, do not include your reasons. '
+                f'Make sure you consider "ALL" the candidates before you rank them in order.'
+                f'The candidates information in this meeting are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
-            description += (f'Remember you need to select EXACTLY {row["count"]} and only {row["count"]} '
-                            f'candidates from the candidates information above.')
+            description += (f'Make sure that the candidates that you rank are only'
+                            f'those that belong to this meeting, not previous ones.')
         if prompt_type == 'Summary':
             row = task_data.iloc[0]
             client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
@@ -140,14 +141,15 @@ def prompt_generator(data, education, work, task_id, prompt_type):
         description = (
             f'You are a member of the UNHRC, based on the information of candidates, '
             f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
-            f'Please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
-            f'Give the ID numbers of the candidates that you have selected, '
-            f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
-            f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
-            f'The candidates information are:\n'
+            f'Please rank these candidates based on how suitable they are for this mandate. '
+            f'Rank them from 1 to {len(task_data)}, where 1 stands for the most suitable '
+            f'and {len(task_data)} stands for the least suitable. '
+            f'Please respond with the following format: @@@ Rank i: Candidate ID: @@@, do not include your reasons. '
+            f'Make sure you consider "ALL" the candidates before you rank them in order.'
+            f'The candidates information in this meeting are:\n'
         )
         description += candidate_information(task_data, edu_data, work_data) + "\n"
-        description += (f'Remember you need to select EXACTLY {row["count"]} and only {row["count"]} '
-                        f'candidates from the candidates information above.')
+        description += (f'Make sure that the candidates that you rank are only'
+                        f'those that belong to this meeting, not previous ones.')
 
     return description

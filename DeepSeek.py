@@ -8,19 +8,18 @@ import re
 
 # 读取数据
 data = pd.read_excel('data.xlsx')
-stage = 2
+stage = 1
 data = data_handler(data, stage)
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
 # API构建
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
-# 创建空白字典
-id_pred_map = {id_: 0 for id_ in data['id'].unique()}
 
+results = []
 # 遍历每个任务ID
 for task_id in data['task_id'].unique():
     # 生成提示语
-    task_description = prompt_generator(data, education, work, task_id, prompt_type='Prototype')
+    task_description = prompt_generator(data, education, work, task_id, prompt_type='Train')
     # 大模型回复
     response = client.chat.completions.create(
         model="deepseek-chat",
@@ -31,23 +30,21 @@ for task_id in data['task_id'].unique():
         stream=False
     )
     # 提取候选人ID
-    numbers = re.findall(r'\d+', response.choices[0].message.content)
-    for number in numbers:
-        id_pred_map[int(number)] = 1
+    matches = re.findall(r'Rank (\d+): Candidate ID: (\d+)', response.choices[0].message.content)
+    for match in matches:
+        rank, candidate_id = match
+        results.append({'rank': int(rank), 'id': int(candidate_id)})
     print(task_id)
 
-# 创建结果DataFrame
-pred = pd.DataFrame(list(id_pred_map.items()), columns=['id', 'pred'])
-# 合并原始数据和最终结果
-data = pd.merge(data, pred, on='id', how='left')
-data['pred'] = data['pred'].astype(int)
-
+results = pd.DataFrame(results)
+data = pd.merge(data, results, on='id', how='outer')
+data.loc[:, 'pred'] = data.apply(lambda x: 1 if x['rank'] <= x['count'] else 0, axis=1)
 # 计算准确率
 acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print(f'准确率为：{acc} 召回率为：{f1}')
 # 将结果转为数据集
-id_finder(data, 'DeepSeek_Prototype', stage)
+id_finder(data, 'DeepSeek', stage)
 
 # 简历筛选轮：
 # 1.无样例 准确率为：0.6499162479061976 召回率为：0.4715549936788875

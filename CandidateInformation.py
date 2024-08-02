@@ -4,6 +4,10 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def candidate_information(task_data, edu_data, work_data):
     description = ''
+    edu_data = edu_data[['id', 'degree_raw', 'major_final', 'university_final', 'country_final', 'years-final']]
+    work_data = work_data[['id', 'title', 'orz', 'country_final', 'years']]
+    edu_data = edu_data.dropna()
+    work_data = work_data.dropna()
     # 将每名参选者的信息添加
     for _, row in task_data.iterrows():
         candidate_id = row['id']
@@ -63,14 +67,16 @@ def candidate_information(task_data, edu_data, work_data):
 
         for _, edu_row in edu_data.iterrows():
             if edu_row['id'] == candidate_id:
-                candidate_info += edu_row['eduinfo'] + '\n'
+                candidate_info += (f'{edu_row["years-final"]}: w{edu_row["degree_raw"]} in {edu_row["major_final"]}, '
+                                   f'{edu_row["university_final"]}, {edu_row["country_final"]}.\n')
 
         candidate_info += f'{his_her} working background is as following:\n'
 
         for _, work_row in work_data.iterrows():
             if work_row['id'] == candidate_id:
-                candidate_info += work_row['workinfo'] + '\n'
+                candidate_info += (f'{work_row["years"]}: {work_row["title"]} of '
+                                   f'{work_row["orz"]}, {work_row["country_final"]}.\n')
 
-        description += candidate_info + '\n'
+        description += candidate_info
 
     return description
