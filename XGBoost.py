@@ -10,6 +10,7 @@ from ID_Finder import id_finder
 data = pd.read_excel('data.xlsx')
 stage = 2
 data = data_handler(data, stage)
+data['other nationality_final'] = data['other nationality_final'].astype('category')
 # # 计算每个 task_id 的组内平均值
 # features_to_average = [col for col in data.columns if col not in ['id', 'mandate', 'gender_final', 'selected',
 #                                                                   'nationality_final', 'task_id', 'interviewed']]

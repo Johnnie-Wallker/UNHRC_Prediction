@@ -24,18 +24,18 @@ for task_id in data['task_id'].unique():
     # 大模型回复
     response = client.chat.completions.create(
         model="deepseek-chat",
-        temperature=0.7,
+        temperature=1,
         messages=[
             {"role": "user", "content": f'{task_description}'},
         ],
         stream=False
     )
     # 提取候选人ID
-    matches = re.findall(r'Rank (\d+): Candidate ID: (\d+)', response.choices[0].message.content)
+    matches = re.findall(r'Rank: (\d+) Candidate ID: (\d+)', response.choices[0].message.content)
     for match in matches:
         rank, candidate_id = match
         results.append({'rank': int(rank), 'id': int(candidate_id)})
-    print(task_id)
+    print(response.choices[0].message.content)
 
 results = pd.DataFrame(results)
 data = pd.merge(data, results, on='id', how='outer')

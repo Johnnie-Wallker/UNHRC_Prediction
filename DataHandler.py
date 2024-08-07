@@ -22,7 +22,6 @@ def data_handler(data, stage):
         data = data.rename(columns={'selected': 'interviewed'})
     # 将文本转化为类别
     data['nationality_final'] = data['nationality_final'].astype('category')
-    data['other nationality_final'] = data['other nationality_final'].astype('category')
     data['mandate'] = data['mandate'].astype('category')
 
     return data

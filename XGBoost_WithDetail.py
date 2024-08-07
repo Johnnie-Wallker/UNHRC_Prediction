@@ -10,6 +10,7 @@ from ID_Finder import id_finder
 data = pd.read_excel('data.xlsx')
 stage = 1
 data = data_handler(data, stage)
+data['other nationality_final'] = data['other nationality_final'].astype('category')
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
 education = education[['id', 'degree_raw', 'major_final', 'university_final', 'country_final']]
