@@ -13,13 +13,13 @@ def prompt_generator(data, education, work, task_id, prompt_type):
     # 填充空缺值
     data = data.fillna(0)
     data.iloc[:, 4:24] = data.iloc[:, 4:24].astype('int')
-    # 提取对应task_id的数据
-    task_data = data[data['task_id'] == task_id]
     # 替换年龄空缺值
-    task_data['age'] = task_data['age'].replace(0, 'Unknown')
+    data['age'] = data['age'].replace(0, 'Unknown')
     # 对语言能力进行替换
     replace_dict = {3: 'high', 2: 'intermediate', 1: 'low', 0: 'no'}
-    task_data.iloc[:, 5:11] = task_data.iloc[:, 5:11].map(replace_dict.get)
+    data.iloc[:, 5:11] = data.iloc[:, 5:11].map(replace_dict.get)
+    # 提取对应task_id的数据
+    task_data = data[data['task_id'] == task_id]
     edu_data = education[education['id'].isin(task_data['id'])]
     work_data = work[work['id'].isin(task_data['id'])]
     # 提取每个职位对应的全部task_id
@@ -43,113 +43,119 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                             f"The candidates that were shortlisted in this meeting are: "
                             f"{', '.join(map(str, shortlisted_ids))}.\n")
         if prompt_type == 'Train':
-            # 生成提示语开头
             row = task_data.iloc[0]
             description = (
-                f'You are a member of the UNHRC, based on the information of candidates, '
-                f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
-                f'Before selecting the candidates, this mandate has been mentioned in previous UNHRC meetings.\n'
-                f'The candidates information in these meetings are:\n'
+                f'You are a member of the United Nations Human Rights Council(UNHRC), '
+                f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
+                f'Your task is to rank these candidates based on how suitable you consider they are for this mandate.\n'
+                f'Before making your rankings, in the previous years the council has held meetings on this mandate, '
+                f'the candidates information in these meetings and the candidates that were shortlisted are:\n'
                 f'{information}\n'
-                f'Now that you have had some experience with this task, '
-                f'please rank these candidates based on how suitable they are for this mandate. '
-                f'Rank them from 1 to {len(task_data)}, where 1 stands for the most suitable '
-                f'and {len(task_data)} stands for the least suitable. '
-                f'Please respond with the following format: @@@ Rank i: Candidate ID: @@@, do not include your reasons. '
-                f'Make sure you consider "ALL" the candidates before you rank them in order.'
-                f'The candidates information in this meeting are:\n'
+                f'Given the examples of previously successful candidates, '
+                f'rank the candidates below from 1 to {len(task_data)}, where 1 stands for the most suitable '
+                f'and {len(task_data)} stands for the least suitable.\n'
+                f'Please respond with the following format: @@@ Rank i: Candidate ID: @@@, '
+                f'do not include your reasons.\n'
+                f'Before making your rankings, make sure you have carefully reviewed all the candidates below '
+                f'regardless of the order they appear in the candidate information below.\n'
+                f'The candidates information to be considered are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
-            description += (f'Make sure that the candidates that you rank are only'
-                            f'those that belong to this meeting, not previous ones.')
+            description += (f'IMPORTANT: Make sure you do not rank the candidates from the previous meetings '
+                            f'when ranking the candidates, they are only there for referencing.')
         if prompt_type == 'Summary':
             row = task_data.iloc[0]
             client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
-            # 大模型回复
             response = client.chat.completions.create(
                 model="deepseek-chat",
                 temperature=0.7,
                 messages=[
-                    {"role": "user", "content": f'Using the candidates information below, '
-                                                f'please summarise what makes a candidate '
-                                                f'suitable for {row["mandate"]} '
-                                                f'given {information}.'
-                                                f'Do not include the candidates ID nor their exact '
-                                                f'information in the summary, '
-                                                f'summarise key attributes that make these '
-                                                f'candidates suitable for this mandate.'},
+                    {"role": "user", "content": f'You are an academic that is now studying what qualities a successful '
+                                                f'candidate possess for {row["mandate"]} '
+                                                f'in the United Nations Human Rights Council(UNHRC).'
+                                                f'The candidates information in these UNHRC meetings are {information}.'
+                                                f'Based on this information, summarise the keys features '
+                                                f'of a successful candidate.\n'
+                                                f'Focus (but not only focus) on the following points:\n'
+                                                f'1. Does certain gender has an advantage over the other?\n'
+                                                f'2. Does certain nationality has an advantage over the others?\n'
+                                                f'3. Does the legal tradition (Based on nationality, '
+                                                f'location of education etc.) of the candidate make '
+                                                f'the candidate more likely to be successful?\n'
+                                                f'4. Does the location of education or the diversity of the location '
+                                                f'of education(i.e. whether the university is in a OECD country or in '
+                                                f'the global south) makes a candidate more likely to be successful?'},
                 ],
                 stream=False
             )
             summary = response.choices[0].message.content
-            # 生成提示语开头
             description = (
-                f'You are a member of the UNHRC, based on the information of candidates, '
-                f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
-                f'Before selecting the candidates, this mandate has been mentioned in previous UNHRC meetings.\n'
-                f'Here is the commentary summary of the selected candidates in these previous UNHRC meetings:\n'
+                f'You are a member of the United Nations Human Rights Council(UNHRC), '
+                f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
+                f'Your task is to rank these candidates based on how suitable you consider they are for this mandate.\n'
+                f'Before making your rankings, in the previous years the council has held meetings on this mandate, '
+                f'here is a summary of the selected candidates in these previous UNHRC meetings:\n'
                 f'{summary}\n'
-                f'Referring to this information, please select "EXACTLY {row["count"]} candidates" '
-                f'using the candidates information below.\n'
-                f'Give the ID numbers of the candidates that you have selected, '
-                f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
-                f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
-                f'The candidates information are:\n'
+                f'Referring to this information, '
+                f'rank the candidates below from 1 to {len(task_data)}, where 1 stands for the most suitable '
+                f'and {len(task_data)} stands for the least suitable.\n'
+                f'Please respond with the following format: @@@ Rank i: Candidate ID: @@@, '
+                f'do not include your reasons.\n'
+                f'Before making your rankings, make sure you have carefully reviewed all the candidates below '
+                f'regardless of the order they appear in the candidate information below.\n'
+                f'The candidates information to be considered are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
-            description += (f'Remember you need to select EXACTLY {row["count"]} and only {row["count"]} '
-                            f'candidates from the candidates information above.')
         if prompt_type == 'RuleSet':
             ruleset = ruleset_generator(train_data)
-            # 生成提示语开头
             row = task_data.iloc[0]
             description = (
-                f'You are a member of the UNHRC, based on the information of candidates, '
-                f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
+                f'You are a member of the United Nations Human Rights Council(UNHRC), '
+                f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
+                f'Your task is to rank these candidates based on how suitable you consider they are for this mandate.\n'
                 f'From previous knowledge, we know that {ruleset}\n'
-                f'Taking this as a reference (and only as a reference) for selecting the suitable candidates, '
-                f'please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
-                f'Give the ID numbers of the candidates that you have selected, '
-                f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
-                f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
-                f'The candidates information are:\n'
+                f'Referring to this information, '
+                f'rank the candidates below from 1 to {len(task_data)}, where 1 stands for the most suitable '
+                f'and {len(task_data)} stands for the least suitable.\n'
+                f'Please respond with the following format: @@@ Rank i: Candidate ID: @@@, '
+                f'do not include your reasons.\n'
+                f'Before making your rankings, make sure you have carefully reviewed all the candidates below '
+                f'regardless of the order they appear in the candidate information below.\n'
+                f'The candidates information to be considered are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
-            description += (f'Remember you need to select EXACTLY {row["count"]} and only {row["count"]} '
-                            f'candidates from the candidates information above.')
         if prompt_type == 'Prototype':
             prototype = prototype_generator(train_data)
-            # 生成提示语开头
             row = task_data.iloc[0]
             description = (
-                f'You are a member of the UNHRC, based on the information of candidates, '
-                f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
+                f'You are a member of the United Nations Human Rights Council(UNHRC), '
+                f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
+                f'Your task is to rank these candidates based on how suitable you consider they are for this mandate.\n'
                 f'From previous knowledge, we know that {prototype}\n'
-                f'Taking this as a reference (and only as a reference) for selecting the suitable candidates, '
-                f'please select "EXACTLY {row["count"]} candidates" using the candidates information below.\n'
-                f'Give the ID numbers of the candidates that you have selected, '
-                f'do not explain why you have chosen the candidates nor rank them in order, just the ID numbers.\n'
-                f'Please respond with the following format: @@@ The candidates ID that you have selected are: @@@\n'
-                f'The candidates information are:\n'
+                f'Referring to this information, '
+                f'rank the candidates below from 1 to {len(task_data)}, where 1 stands for the most suitable '
+                f'and {len(task_data)} stands for the least suitable.\n'
+                f'Please respond with the following format: @@@ Rank i: Candidate ID: @@@, '
+                f'do not include your reasons.\n'
+                f'Before making your rankings, make sure you have carefully reviewed all the candidates below '
+                f'regardless of the order they appear in the candidate information below.\n'
+                f'The candidates information to be considered are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
-            description += (f'Remember you need to select EXACTLY {row["count"]} and only {row["count"]} '
-                            f'candidates from the candidates information above.')
     else:
-        # 生成提示语开头
         row = task_data.iloc[0]
         description = (
-            f'You are a member of the UNHRC, based on the information of candidates, '
-            f'select who can be shortlisted for interview. Their mandate is {row["mandate"]}.\n'
-            f'Please rank these candidates based on how suitable they are for this mandate. '
+            f'You are a member of the United Nations Human Rights Council(UNHRC), '
+            f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
+            f'Given the candidates information below, '
+            f'please rank these candidates based on how suitable you consider they are for this mandate.\n'
             f'Rank them from 1 to {len(task_data)}, where 1 stands for the most suitable '
-            f'and {len(task_data)} stands for the least suitable. '
-            f'Please respond with the following format: @@@ Rank i: Candidate ID: @@@, do not include your reasons. '
-            f'Make sure you consider "ALL" the candidates before you rank them in order.'
-            f'The candidates information in this meeting are:\n'
+            f'and {len(task_data)} stands for the least suitable.\n'
+            f'Please respond with the following format: @@@ Rank i: Candidate ID: @@@, do not include your reasons.\n'
+            f'Before making your rankings, make sure you have carefully reviewed all the candidates '
+            f'regardless of the order they appear in the candidate information.\n'
+            f'The candidates information to be considered are:\n'
         )
         description += candidate_information(task_data, edu_data, work_data) + "\n"
-        description += (f'Make sure that the candidates that you rank are only'
-                        f'those that belong to this meeting, not previous ones.')
 
     return description

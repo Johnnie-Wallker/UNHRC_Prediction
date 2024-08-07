@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/PROJECT.iml" filepath="$PROJECT_DIR$/.idea/PROJECT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/UNHRC_Prediction.iml" filepath="$PROJECT_DIR$/.idea/UNHRC_Prediction.iml" />
     </modules>
   </component>
 </project>

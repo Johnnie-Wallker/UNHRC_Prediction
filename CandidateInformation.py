@@ -30,38 +30,38 @@ def candidate_information(task_data, edu_data, work_data):
 
         language_info = ', '.join(
             [f"{level} {language.replace('_', ' ')}" for language, level in languages.items() if level != 'no'])
-        candidate_info += f"{he_she} has {language_info}. "
+        candidate_info += f"{he_she} has {language_info}.\n"
 
-        # 背景信息
-        backgrounds = {
-            'legal background': row['lawflag'],
-            'religious background': row['church_flag'],
-            'academic background': row['academic_flag'],
-            'company background': row['firm_flag'],
-            'IGO background': row['internationalorg_flag'],
-            'NGO background': row['ngo_flag'],
-            'government background': row['state_flag']
-        }
-
-        background_info = ', '.join([f"{background}" for background, flag in backgrounds.items() if flag == 1])
-        if background_info:
-            candidate_info += f"{he_she} has {background_info}. "
-
-        # 当前类型
-        current_job_flags = {
-            'academic': row['academic_current_flag'],
-            'IGO': row['internationalorg_current_flag'],
-            'NGO': row['ngo_current_flag'],
-            'government': row['state_current_flag'],
-            'company': row['firm_current_flag'],
-            'religious': row['church_current_flag'],
-            'law': row['la_current_flag']
-        }
-        current_jobs = [job for job, flag in current_job_flags.items() if flag == 1]
-
-        if current_jobs:
-            current_job_str = " and ".join(current_jobs)
-            candidate_info += f'{his_her} current job is {current_job_str} related.\n'
+        # # 背景信息
+        # backgrounds = {
+        #     'legal background': row['lawflag'],
+        #     'religious background': row['church_flag'],
+        #     'academic background': row['academic_flag'],
+        #     'company background': row['firm_flag'],
+        #     'IGO background': row['internationalorg_flag'],
+        #     'NGO background': row['ngo_flag'],
+        #     'government background': row['state_flag']
+        # }
+        #
+        # background_info = ', '.join([f"{background}" for background, flag in backgrounds.items() if flag == 1])
+        # if background_info:
+        #     candidate_info += f"{he_she} has {background_info}. "
+        #
+        # # 当前类型
+        # current_job_flags = {
+        #     'academic': row['academic_current_flag'],
+        #     'IGO': row['internationalorg_current_flag'],
+        #     'NGO': row['ngo_current_flag'],
+        #     'government': row['state_current_flag'],
+        #     'company': row['firm_current_flag'],
+        #     'religious': row['church_current_flag'],
+        #     'law': row['la_current_flag']
+        # }
+        # current_jobs = [job for job, flag in current_job_flags.items() if flag == 1]
+        #
+        # if current_jobs:
+        #     current_job_str = " and ".join(current_jobs)
+        #     candidate_info += f'{his_her} current job is {current_job_str} related.\n'
 
         candidate_info += f'{his_her} educational background is as following:\n'
 
