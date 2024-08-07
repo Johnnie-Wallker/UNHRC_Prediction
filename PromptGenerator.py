@@ -12,12 +12,12 @@ def prompt_generator(data, education, work, task_id, prompt_type):
     description = ''
     # 填充空缺值
     data = data.fillna(0)
-    data.iloc[:, 4:24] = data.iloc[:, 4:24].astype('int')
+    data.iloc[:, 5:25] = data.iloc[:, 5:25].astype('int')
     # 替换年龄空缺值
     data['age'] = data['age'].replace(0, 'Unknown')
     # 对语言能力进行替换
     replace_dict = {3: 'high', 2: 'intermediate', 1: 'low', 0: 'no'}
-    data.iloc[:, 5:11] = data.iloc[:, 5:11].map(replace_dict.get)
+    data.iloc[:, 6:12] = data.iloc[:, 6:12].map(replace_dict.get)
     # 提取对应task_id的数据
     task_data = data[data['task_id'] == task_id]
     edu_data = education[education['id'].isin(task_data['id'])]
@@ -77,12 +77,14 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                                                 f'Based on this information, summarise the keys features '
                                                 f'of a successful candidate.\n'
                                                 f'Focus (but not only focus) on the following points:\n'
-                                                f'1. Does certain gender has an advantage over the other?\n'
-                                                f'2. Does certain nationality has an advantage over the others?\n'
-                                                f'3. Does the legal tradition (Based on nationality, '
+                                                f'1. Is there a trend in age or language abilities '
+                                                f'among the successful candidates?'
+                                                f'2. Does certain gender has an advantage over the other?\n'
+                                                f'3. Does certain nationality has an advantage over the others?\n'
+                                                f'4. Does the legal tradition (Based on nationality, '
                                                 f'location of education etc.) of the candidate make '
                                                 f'the candidate more likely to be successful?\n'
-                                                f'4. Does the location of education or the diversity of the location '
+                                                f'5. Does the location of education or the diversity of the location '
                                                 f'of education(i.e. whether the university is in a OECD country or in '
                                                 f'the global south) makes a candidate more likely to be successful?'},
                 ],

@@ -8,7 +8,7 @@ from ID_Finder import id_finder
 
 # 读取数据
 data = pd.read_excel('data.xlsx')
-stage = 1
+stage = 2
 data = data_handler(data, stage)
 # # 计算每个 task_id 的组内平均值
 # features_to_average = [col for col in data.columns if col not in ['id', 'mandate', 'gender_final', 'selected',
@@ -25,12 +25,11 @@ data = pd.merge(data, pred, on='id', how='left')
 # 计算准确率
 acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
-print('准确率为：', acc)
-print('召回率为：', f1)
+print('准确率为：', acc, '召回率为：', f1)
 # 获取具体ID信息
 id_finder(data, 'XGBoost', stage)
 # 简历筛选轮：
-# 准确率为： 0.6758793969849246 召回率为： 0.5107458912768648
+# 准确率为： 0.6825795644891123 召回率为： 0.5208596713021492
 
 # 面试轮：
-# 准确率为： 0.6795180722891566 召回率为： 0.2887700534759358
+# 准确率为： 0.689156626506024 召回率为： 0.31016042780748665

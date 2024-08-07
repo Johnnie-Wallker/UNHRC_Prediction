@@ -14,12 +14,13 @@ education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
 # API构建
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
+prompt_type = 'None'
 
 results = []
 # 遍历每个任务ID
 for task_id in data['task_id'].unique():
     # 生成提示语
-    task_description = prompt_generator(data, education, work, task_id, prompt_type='Summary')
+    task_description = prompt_generator(data, education, work, task_id, prompt_type)
     # 大模型回复
     response = client.chat.completions.create(
         model="deepseek-chat",
@@ -44,7 +45,7 @@ acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print(f'准确率为：{acc} 召回率为：{f1}')
 # 将结果转为数据集
-id_finder(data, 'DeepSeek_Summary', stage)
+id_finder(data, f'DeepSeek_{prompt_type}', stage)
 
 # 简历筛选轮：
 # 1.无样例 准确率为：0.6499162479061976 召回率为：0.4715549936788875

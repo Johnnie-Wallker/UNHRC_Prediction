@@ -1,4 +1,5 @@
 import warnings
+import pandas as pd
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
@@ -13,8 +14,11 @@ def candidate_information(task_data, edu_data, work_data):
         candidate_id = row['id']
         he_she = "He" if row['gender_final'] == "Male" else "She"
         his_her = "His" if row['gender_final'] == "Male" else "Her"
+        nationality = row['nationality_final']
+        if row['other nationality_final'] != 0:
+            nationality += f' and {row["other nationality_final"]}'
         candidate_info = (
-            f'Candidate ID: {row["id"]}, {he_she} is a citizen of {row["nationality_final"]}. '
+            f'Candidate ID: {row["id"]}, {he_she} is a citizen of {nationality}. '
             f'{his_her} age is {row["age"]}. '
         )
 

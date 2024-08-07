@@ -25,7 +25,7 @@ data = pd.merge(data, work, on='id', how='outer')
 data = data.dropna(subset=['interviewed'])
 # 将新特征重命名以避免特殊符号
 original_columns = data.columns.tolist()
-new_columns = original_columns[:28] + [f'feature_{i}' for i in range(1, len(original_columns) - 27)]
+new_columns = original_columns[:29] + [f'feature_{i}' for i in range(1, len(original_columns) - 28)]
 data.columns = new_columns
 
 # 创建XGBoost
@@ -36,8 +36,7 @@ data = pd.merge(data, pred, on='id', how='left')
 # 计算准确率
 acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
-print('准确率为：', acc)
-print('召回率为：', f1)
+print('准确率为：', acc, '召回率为：', f1)
 # 获取具体ID信息
 id_finder(data, 'XGBoost_WithDetail', stage)
 # 简历筛选轮：
