@@ -5,7 +5,8 @@ pd.options.mode.copy_on_write = True
 def evaluate_model(model, data):
     # 创建空白列表
     result = []
-    for task_id in data['task_id'].unique():
+    for i in range(len(data['task_id'].unique())):
+        task_id = data['task_id'].unique()[i]
         train = data[data['task_id'] != task_id]
         test = data[data['task_id'] == task_id]
         # 划分训练测试集
@@ -24,6 +25,6 @@ def evaluate_model(model, data):
         # 提取结果
         for i in range(test.shape[0]):
             result.append({'id': test['id'].tolist()[i], 'pred': test['pred'].tolist()[i]})
-        print(task_id)
+        print(f'Current Progress: {round((i/len(data["task_id"].unique()))*100,1)}%')
 
     return result

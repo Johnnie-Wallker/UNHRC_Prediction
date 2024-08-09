@@ -5,20 +5,25 @@ from DataHandler import data_handler
 from ID_Finder import id_finder
 import pandas as pd
 import re
-
+import numpy as np
 # 读取数据
 data = pd.read_excel('data.xlsx')
 stage = 1
 data = data_handler(data, stage)
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
-# API构建
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
 prompt_type = 'None'
-
-results = []
+id_pred_map = {id_: 0 for id_ in data['id'].unique()}
+# 随机打乱组内ID
+data = (data
+        .groupby('task_id')
+        .apply(lambda x: x.assign(id=np.random.permutation(x['id'])), include_groups=False)
+        .sort_values(by='id')
+        .reset_index(drop=True))
 # 遍历每个任务ID
-for task_id in data['task_id'].unique():
+for i in range(len(data['task_id'].unique())):
+    task_id = data['task_id'].unique()[i]
     # 生成提示语
     task_description = prompt_generator(data, education, work, task_id, prompt_type)
     # 大模型回复
@@ -31,16 +36,17 @@ for task_id in data['task_id'].unique():
         stream=False
     )
     # 提取候选人ID
-    matches = re.findall(r'Rank: (\d+) Candidate ID: (\d+)', response.choices[0].message.content)
-    for match in matches:
-        rank, candidate_id = match
-        results.append({'rank': int(rank), 'id': int(candidate_id)})
-    print(response.choices[0].message.content)
+    numbers = re.findall(r"Candidate ID: (\d+)", response.choices[0].message.content)
+    for number in numbers:
+        id_pred_map[int(number)] = 1
+    print(f'Current Progress: {round((i / len(data["task_id"].unique())) * 100, 1)}%\n '
+          f'Task ID: {task_id} Candidates shortlisted are: {numbers}')
 
-results = pd.DataFrame(results)
-data = pd.merge(data, results, on='id', how='outer')
-data.loc[:, 'pred'] = data.apply(lambda x: 1 if x['rank'] <= x['count'] else 0, axis=1)
-# 计算准确率
+# 提取结果
+pred = pd.DataFrame(list(id_pred_map.items()), columns=['id', 'pred'])
+data = pd.merge(data, pred, on='id', how='left')
+data['pred'] = data['pred'].astype(int)
+# 评估结果
 acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print(f'准确率为：{acc} 召回率为：{f1}')

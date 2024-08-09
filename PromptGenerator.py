@@ -4,6 +4,7 @@ from openai import OpenAI
 from CandidateInformation import candidate_information
 from RuleSet import ruleset_generator
 from Prototype import prototype_generator
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 pd.options.mode.copy_on_write = True
 
@@ -47,22 +48,20 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-                f'Your task is to rank these candidates based on how suitable you consider they are for this mandate.\n'
-                f'Before making your rankings, in the previous years the council has held meetings on this mandate, '
+                f'In the previous years the council has held meetings on this mandate, '
                 f'the candidates information in these meetings and the candidates that were shortlisted are:\n'
                 f'{information}\n'
                 f'Given the examples of previously successful candidates, '
-                f'rank the candidates below from 1 to {len(task_data)}, where 1 stands for the most suitable '
-                f'and {len(task_data)} stands for the least suitable.\n'
-                f'Please respond with the following format: @@@ Rank: i Candidate ID: @@@, '
-                f'do not include your reasons.\n'
-                f'Before making your rankings, make sure you have carefully reviewed all the candidates below '
-                f'regardless of the order they appear in the candidate information below.\n'
-                f'The candidates information to be considered are:\n'
+                f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'Respond with the following format: @@@ Candidate ID: id1 Reason: , ......, id{row["count"]} Reason: @@@\n'
+                f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the complete '
+                f'information of ALL the candidates below regardless of the order they appear, '
+                f'!!!The candidates information are:\n'
             )
-            description += candidate_information(task_data, edu_data, work_data) + "\n"
-            description += (f'IMPORTANT: Make sure you do not rank the candidates from the previous meetings '
-                            f'when ranking the candidates, they are only there for referencing.')
+            description += candidate_information(task_data, edu_data, work_data) + "\n!!!"
+            description += (f'IMPORTANT: Make sure you do not select any candidate from any previous meetings, '
+                            f'they are only there for reference, you should only select those candidates that are '
+                            f'between the 3 exclamation marks(i.e. !!!).')
         if prompt_type == 'Summary':
             row = task_data.iloc[0]
             client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
@@ -94,18 +93,16 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-                f'Your task is to rank these candidates based on how suitable you consider they are for this mandate.\n'
-                f'Before making your rankings, in the previous years the council has held meetings on this mandate, '
+                f'In the previous years the council has held meetings on this mandate, '
                 f'here is a summary of the selected candidates in these previous UNHRC meetings:\n'
                 f'{summary}\n'
                 f'Referring to this information, '
-                f'rank the candidates below from 1 to {len(task_data)}, where 1 stands for the most suitable '
-                f'and {len(task_data)} stands for the least suitable.\n'
-                f'Please respond with the following format: @@@ Rank: i Candidate ID: @@@, '
-                f'do not include your reasons.\n'
-                f'Before making your rankings, make sure you have carefully reviewed all the candidates below '
-                f'regardless of the order they appear in the candidate information below.\n'
-                f'The candidates information to be considered are:\n'
+                f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'Please respond with the following format: @@@ Candidate ID: id1, ..., id{row["count"]} @@@, '
+                f'do not include your reasons for selecting them.\n'
+                f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
+                f'information of ALL the candidates below regardless of the order they appear.\n'
+                f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
         if prompt_type == 'RuleSet':
@@ -114,16 +111,15 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-                f'Your task is to rank these candidates based on how suitable you consider they are for this mandate.\n'
-                f'From previous knowledge, we know that {ruleset}\n'
+                f'In the previous years the council has held meetings on this mandate, '
+                f'academics have found that {ruleset}\n'
                 f'Referring to this information, '
-                f'rank the candidates below from 1 to {len(task_data)}, where 1 stands for the most suitable '
-                f'and {len(task_data)} stands for the least suitable.\n'
-                f'Please respond with the following format: @@@ Rank: i Candidate ID: @@@, '
-                f'do not include your reasons.\n'
-                f'Before making your rankings, make sure you have carefully reviewed all the candidates below '
-                f'regardless of the order they appear in the candidate information below.\n'
-                f'The candidates information to be considered are:\n'
+                f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'Please respond with the following format: @@@ Candidate ID: id1, ..., id{row["count"]} @@@, '
+                f'do not include your reasons for selecting them.\n'
+                f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
+                f'information of ALL the candidates below regardless of the order they appear.\n'
+                f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
         if prompt_type == 'Prototype':
@@ -132,16 +128,15 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-                f'Your task is to rank these candidates based on how suitable you consider they are for this mandate.\n'
-                f'From previous knowledge, we know that {prototype}\n'
+                f'In the previous years the council has held meetings on this mandate, '
+                f'academics have found that {prototype}\n'
                 f'Referring to this information, '
-                f'rank the candidates below from 1 to {len(task_data)}, where 1 stands for the most suitable '
-                f'and {len(task_data)} stands for the least suitable.\n'
-                f'Please respond with the following format: @@@ Rank: i Candidate ID: @@@, '
-                f'do not include your reasons.\n'
-                f'Before making your rankings, make sure you have carefully reviewed all the candidates below '
-                f'regardless of the order they appear in the candidate information below.\n'
-                f'The candidates information to be considered are:\n'
+                f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'Please respond with the following format: @@@ Candidate ID: id1, ..., id{row["count"]} @@@, '
+                f'do not include your reasons for selecting them.\n'
+                f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
+                f'information of ALL the candidates below regardless of the order they appear.\n'
+                f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
     else:
@@ -149,14 +144,11 @@ def prompt_generator(data, education, work, task_id, prompt_type):
         description = (
             f'You are a member of the United Nations Human Rights Council(UNHRC), '
             f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-            f'Given the candidates information below, '
-            f'please rank these candidates based on how suitable you consider they are for this mandate.\n'
-            f'Rank them from 1 to {len(task_data)}, where 1 stands for the most suitable '
-            f'and {len(task_data)} stands for the least suitable.\n'
-            f'Please respond with the following format: @@@ Rank: i Candidate ID: id @@@, do not include your reasons.\n'
-            f'Before making your rankings, make sure you have carefully reviewed all the candidates '
-            f'regardless of the order they appear in the candidate information.\n'
-            f'The candidates information to be considered are:\n'
+            f'Please select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+            f'Respond with the following format: @@@ Candidate ID: id1 Reason: , ..., id{row["count"]} Reason: @@@\n'
+            f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
+            f'information of ALL the candidates below regardless of the order they appear.\n'
+            f'The candidates information are:\n'
         )
         description += candidate_information(task_data, edu_data, work_data) + "\n"
 
