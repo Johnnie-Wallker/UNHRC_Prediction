@@ -16,11 +16,12 @@ client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https:/
 prompt_type = 'None'
 id_pred_map = {id_: 0 for id_ in data['id'].unique()}
 # 随机打乱组内ID
-data = (data
+shuffled_data = (data
         .groupby('task_id')
         .apply(lambda x: x.assign(id=np.random.permutation(x['id'])), include_groups=False)
         .sort_values(by='id')
         .reset_index(drop=True))
+data = shuffled_data.merge(data[['id', 'task_id']].drop_duplicates(), on='id', how='left')
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
