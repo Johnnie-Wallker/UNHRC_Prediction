@@ -3,7 +3,7 @@ from sklearn.metrics import accuracy_score, f1_score
 from Model_Evaluate import modeval
 from Data_Handler import data_handler
 from xgboost import XGBClassifier
-from Result_Logger import create_result
+from Result_Logger import log_result
 
 
 # 读取数据
@@ -28,7 +28,7 @@ acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print('准确率为：', acc, '召回率为：', f1)
 # 获取具体ID信息
-create_result(data, 'XGBoost', stage)
+log_result(data, 'XGBoost', stage)
 # 简历筛选轮：
 # 准确率为： 0.6825795644891123 召回率为： 0.5208596713021492
 

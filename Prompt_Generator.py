@@ -50,20 +50,21 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-                f'In the previous years the council has held meetings on this mandate, '
-                f'the candidates information in these meetings and the candidates that were shortlisted are:\n'
-                f'{information}\n'
-                f'Given the examples of previously successful candidates, '
-                f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
-                f'Respond with the following format: @@@ Candidate ID: id1, ......, id{row["count"]} @@@\n'
-                f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the complete '
-                f'information of ALL the candidates below regardless of the order they appear, '
-                f'!!!The candidates information are:\n'
+                f'In the previous years, the council has held meetings on the same mandate, '
+                f'the information of the candidates in these meetings are:\n{information}'
+                f'Now that you have had some experience, review the candidates curriculum information below, '
+                f'summarise the strengths and characteristics of each '
+                f'candidate, then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'Please respond with the following format: '
+                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@，\n'
+                f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
+                f'list of ALL the candidates below regardless of the order they appear.\n'
+                f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n!!!"
             description += (f'IMPORTANT: Make sure you do not select any candidate from any previous meetings, '
-                            f'they are only there for reference, you should only select those candidates that are '
-                            f'between the 3 exclamation marks(i.e. !!!).')
+                            f'they are only there for reference, you should only select those candidates '
+                            f'under "The candidates information are:".')
         if prompt_type == 'Summary':
             row = task_data.iloc[0]
             client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
@@ -149,7 +150,7 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             f'Review the candidates curriculum information below, summarise the strengths and characteristics of each '
             f'candidate, then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
             f'Please respond with the following format: '
-            f'@@@ The {row["count"]} candidates selected are: id1, ..., id{row["count"]} @@@，\n'
+            f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@，\n'
             f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
             f'list of ALL the candidates below regardless of the order they appear.\n'
             f'The candidates information are:\n'

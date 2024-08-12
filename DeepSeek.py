@@ -1,10 +1,13 @@
 import pandas as pd
 import re
+import warnings
 from openai import OpenAI
 from sklearn.metrics import accuracy_score, f1_score
 from Prompt_Generator import prompt_generator
 from Data_Handler import data_handler, int_md5_transform
-from Result_Logger import create_result
+from Result_Logger import log_result
+warnings.filterwarnings("ignore", category=UserWarning, message="Token indices sequence length is longer than the "
+                                                                "specified maximum sequence length for this model")
 
 # 读取数据
 data = pd.read_excel('data.xlsx')
@@ -13,17 +16,18 @@ data = data_handler(data, stage)
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
 id_pred_map = {id_: 0 for id_ in data['id'].unique()}
+token_count = []
 # 将ID信息转换为MD5码
 data['id'] = data['id'].apply(lambda x: int_md5_transform(num=x))
 education['id'] = education['id'].apply(lambda x: int_md5_transform(num=x))
 work['id'] = work['id'].apply(lambda x: int_md5_transform(num=x))
 # 配置API
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
-prompt_type = 'None'
+prompt_type = 'Train'
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
-    # 生成提示语
+    # 生成提示语并记录token数
     task_description = prompt_generator(data, education, work, task_id, prompt_type)
     # 大模型回复
     response = client.chat.completions.create(
@@ -34,10 +38,12 @@ for i in range(len(data['task_id'].unique())):
         ],
         stream=False
     )
+    token_count.append(response.usage.prompt_tokens)
     # 提取候选人ID
     numbers = re.findall(r'\b[a-f0-9]{6}\b',
-                         re.search(r'candidates selected are: (.*?) @@@', response.choices[0].message.content).group(1))
+                         re.search(r'@@@ Candidates selected: (.*?) @@@', response.choices[0].message.content).group(1))
     numbers = [int_md5_transform(md5_hash=hash_val, reverse=True) for hash_val in numbers]
+    numbers.sort()
     for number in numbers:
         id_pred_map[number] = 1
     print(f'Current Progress: {round((i / len(data["task_id"].unique())) * 100, 1)}%\n '
@@ -45,14 +51,14 @@ for i in range(len(data['task_id'].unique())):
 
 # 提取结果
 pred = pd.DataFrame(list(id_pred_map.items()), columns=['id', 'pred'])
+data['id'] = data['id'].apply(lambda x: int_md5_transform(md5_hash=x, reverse=True))
 data = pd.merge(data, pred, on='id', how='left')
-data['pred'] = data['pred'].astype(int)
 # 评估结果
 acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print(f'准确率为：{acc} 召回率为：{f1}')
 # 将结果转为数据集
-create_result(data, f'DeepSeek_{prompt_type}_test', stage)
+log_result(data, stage, 'DeepSeek', prompt_type, token_count)
 
 # 简历筛选轮：
 # 1.无样例 准确率为：0.6499162479061976 召回率为：0.4715549936788875

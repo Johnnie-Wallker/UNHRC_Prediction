@@ -1,9 +1,8 @@
 from sklearn.metrics import accuracy_score, f1_score
-from Data_Handler import int_md5_transform
 import pandas as pd
 
 
-def create_result(data, model_type, stage):
+def log_result(data, stage, model_type, prompt_type=None, token_count=None):
     # 创建空白列表
     result = []
     # 提取每个task_id对应信息
@@ -28,4 +27,8 @@ def create_result(data, model_type, stage):
                            'Accuracy': f'Accuracy_{model_type}',
                            'Recall': f'Recall_{model_type}'},
                   inplace=True)
-    result.to_csv(f'Result_Round{stage}/result_{model_type}.csv', index=False)
+    if model_type == 'DeepSeek':
+        result['token_count'] = token_count
+        result.to_csv(f'Result_Round{stage}/result_{model_type}_{prompt_type}.csv', index=False)
+    else:
+        result.to_csv(f'Result_Round{stage}/result_{model_type}.csv', index=False)
