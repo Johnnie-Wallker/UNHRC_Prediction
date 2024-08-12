@@ -12,6 +12,7 @@ stage = 1
 data = data_handler(data, stage)
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
+id_pred_map = {id_: 0 for id_ in data['id'].unique()}
 # 将ID信息转换为MD5码
 data['id'] = data['id'].apply(lambda x: int_md5_transform(num=x))
 education['id'] = education['id'].apply(lambda x: int_md5_transform(num=x))
@@ -19,7 +20,6 @@ work['id'] = work['id'].apply(lambda x: int_md5_transform(num=x))
 # 配置API
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
 prompt_type = 'None'
-id_pred_map = {id_: 0 for id_ in data['id'].unique()}
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
@@ -35,10 +35,9 @@ for i in range(len(data['task_id'].unique())):
         stream=False
     )
     # 提取候选人ID
-    # numbers = re.findall(r'\d+',
-    #                      re.search(r'@@@ Candidate ID: (.*?) @@@', response.choices[0].message.content).group(1))
     numbers = re.findall(r'\b[a-f0-9]{6}\b',
-                         re.search(r'@@@ Candidate ID: (.*?) @@@', response.choices[0].message.content).group(1))
+                         re.search(r'candidates selected are: (.*?) @@@', response.choices[0].message.content).group(1))
+    numbers = [int_md5_transform(md5_hash=hash_val, reverse=True) for hash_val in numbers]
     for number in numbers:
         id_pred_map[number] = 1
     print(f'Current Progress: {round((i / len(data["task_id"].unique())) * 100, 1)}%\n '

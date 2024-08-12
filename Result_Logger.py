@@ -4,7 +4,6 @@ import pandas as pd
 
 
 def create_result(data, model_type, stage):
-    data['id'] = data['id'].apply(lambda x: int_md5_transform(md5_hash=x, reverse=True))
     # 创建空白列表
     result = []
     # 提取每个task_id对应信息
