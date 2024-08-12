@@ -70,7 +70,7 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
             response = client.chat.completions.create(
                 model="deepseek-chat",
-                temperature=0.7,
+                temperature=1,
                 messages=[
                     {"role": "user", "content": f'You are an academic that is now studying what qualities a successful '
                                                 f'candidate possess for {row["mandate"]} '
@@ -96,15 +96,15 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-                f'In the previous years the council has held meetings on this mandate, '
-                f'here is a summary of the selected candidates in these previous UNHRC meetings:\n'
-                f'{summary}\n'
-                f'Referring to this information, '
-                f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
-                f'Please respond with the following format: @@@ Candidates selected: id1, ..., id{row["count"]} @@@, '
-                f'do not include your reasons for selecting them.\n'
+                f'In the previous years, the council has held meetings on the same mandate, '
+                f'scholars have summarised the key features of successful candidates in these meetings:\n{summary}'
+                f'Referring to this summary, review the candidates curriculum information below, '
+                f'summarise the strengths and characteristics of each candidate according to the mandate and summary, '
+                f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'Please respond with the following format: '
+                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
-                f'information of ALL the candidates below regardless of the order they appear.\n'
+                f'list of ALL the candidates below regardless of the order they appear.\n'
                 f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
@@ -114,14 +114,15 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-                f'In the previous years the council has held meetings on this mandate, '
-                f'academics have found that {ruleset}\n'
-                f'Referring to this information, '
-                f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
-                f'Please respond with the following format: @@@ Candidate ID: id1, ..., id{row["count"]} @@@, '
-                f'do not include your reasons for selecting them.\n'
+                f'In the previous years, the council has held meetings on the same mandate, '
+                f'experts have found that: \n{ruleset}'
+                f'Referring to this information, review the candidates curriculum information below, '
+                f'summarise the strengths and characteristics of each candidate, '
+                f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'Please respond with the following format: '
+                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
-                f'information of ALL the candidates below regardless of the order they appear.\n'
+                f'list of ALL the candidates below regardless of the order they appear.\n'
                 f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"
@@ -131,14 +132,15 @@ def prompt_generator(data, education, work, task_id, prompt_type):
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-                f'In the previous years the council has held meetings on this mandate, '
-                f'academics have found that {prototype}\n'
-                f'Referring to this information, '
-                f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
-                f'Please respond with the following format: @@@ Candidate ID: id1, ..., id{row["count"]} @@@, '
-                f'do not include your reasons for selecting them.\n'
+                f'In the previous years, the council has held meetings on the same mandate, '
+                f'experts have found that: \n{prototype}'
+                f'Referring to this information, review the candidates curriculum information below, '
+                f'summarise the strengths and characteristics of each candidate, '
+                f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'Please respond with the following format: '
+                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
-                f'information of ALL the candidates below regardless of the order they appear.\n'
+                f'list of ALL the candidates below regardless of the order they appear.\n'
                 f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data) + "\n"

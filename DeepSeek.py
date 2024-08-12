@@ -20,25 +20,28 @@ education['id'] = education['id'].apply(lambda x: int_md5_transform(num=x))
 work['id'] = work['id'].apply(lambda x: int_md5_transform(num=x))
 # 配置API
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
-prompt_type = 'Train'
+prompt_type = 'Summary'
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
-    # 生成提示语并记录token数
+    retries = 0
+    numbers = None
     task_description = prompt_generator(data, education, work, task_id, prompt_type)
-    # 大模型回复
-    response = client.chat.completions.create(
-        model="deepseek-chat",
-        temperature=0.7,
-        messages=[
-            {"role": "user", "content": f'{task_description}'},
-        ],
-        stream=False
-    )
-    token_count.append(response.usage.prompt_tokens)
-    # 提取候选人ID
-    numbers = re.findall(r'\b[a-f0-9]{6}\b',
-                         re.search(r'@@@ Candidates selected: (.*?) @@@', response.choices[0].message.content).group(1))
+    while retries < 5:
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            temperature=0.3,
+            messages=[
+                {"role": "user", "content": f'{task_description}'},
+            ],
+            stream=False
+        )
+        match = re.search(r'@@@ Candidates selected: (.*?) @@@', response.choices[0].message.content)
+        if match:
+            numbers = re.findall(r'\b[a-f0-9]{6}\b', match.group(1))
+            token_count.append(response.usage.prompt_tokens)
+        else:
+            retries += 1
     numbers = [int_md5_transform(md5_hash=hash_val, reverse=True) for hash_val in numbers]
     numbers.sort()
     for number in numbers:
