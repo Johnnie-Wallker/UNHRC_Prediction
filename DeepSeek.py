@@ -1,13 +1,10 @@
 import pandas as pd
 import re
-import warnings
 from openai import OpenAI
 from sklearn.metrics import accuracy_score, f1_score
 from Prompt_Generator import prompt_generator
 from Data_Handler import data_handler, int_md5_transform
 from Result_Logger import log_result
-warnings.filterwarnings("ignore", category=UserWarning, message="Token indices sequence length is longer than the "
-                                                                "specified maximum sequence length for this model")
 
 # 读取数据
 data = pd.read_excel('data.xlsx')
