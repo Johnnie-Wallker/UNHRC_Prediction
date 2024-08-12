@@ -1,4 +1,26 @@
 import numpy as np
+import hashlib
+
+
+def int_md5_transform(num=None, md5_hash=None, length=6, reverse=False):
+    if not hasattr(int_md5_transform, "md5_to_int_map"):
+        int_md5_transform.md5_to_int_map = {}
+        int_md5_transform.int_to_md5_map = {}
+        for i in range(1, 3001):
+            num_str = str(i)
+            md5_hash = hashlib.md5(num_str.encode()).hexdigest()[:length]
+            int_md5_transform.md5_to_int_map[md5_hash] = i
+            int_md5_transform.int_to_md5_map[i] = md5_hash
+    if reverse:
+        if md5_hash in int_md5_transform.md5_to_int_map:
+            return int_md5_transform.md5_to_int_map[md5_hash]
+        else:
+            raise ValueError("MD5 hash not found in the mapping.")
+    else:
+        if num in int_md5_transform.int_to_md5_map:
+            return int_md5_transform.int_to_md5_map[num]
+        else:
+            raise ValueError("Integer not found in the mapping.")
 
 
 def data_handler(data, stage):

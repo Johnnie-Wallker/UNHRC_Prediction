@@ -1,9 +1,9 @@
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score
-from ModEval import evaluate_model
-from DataHandler import data_handler
+from Model_Evaluate import evaluate_model
+from Data_Handler import data_handler
 from xgboost import XGBClassifier
-from ID_Finder import id_finder
+from Result_Logger import create_result
 
 
 # 读取数据
@@ -39,7 +39,7 @@ acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print('准确率为：', acc, '召回率为：', f1)
 # 获取具体ID信息
-id_finder(data, 'XGBoost_WithDetail', stage)
+create_result(data, 'XGBoost_WithDetail', stage)
 # 简历筛选轮：
 # 准确率为： 0.6867671691792295 召回率为： 0.527180783817952
 

@@ -1,9 +1,9 @@
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score
-from ModEval import evaluate_model
-from DataHandler import data_handler
+from Model_Evaluate import modeval
+from Data_Handler import data_handler
 from xgboost import XGBClassifier
-from ID_Finder import id_finder
+from Result_Logger import create_result
 
 
 # 读取数据
@@ -21,14 +21,14 @@ data['other nationality_final'] = data['other nationality_final'].astype('catego
 # 创建XGBoost
 xgb = XGBClassifier(objective='binary:logistic', seed=1, enable_categorical=True)
 # 获取预测结果
-pred = pd.DataFrame(evaluate_model(xgb, data))
+pred = pd.DataFrame(modeval(xgb, data))
 data = pd.merge(data, pred, on='id', how='left')
 # 计算准确率
 acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print('准确率为：', acc, '召回率为：', f1)
 # 获取具体ID信息
-id_finder(data, 'XGBoost', stage)
+create_result(data, 'XGBoost', stage)
 # 简历筛选轮：
 # 准确率为： 0.6825795644891123 召回率为： 0.5208596713021492
 

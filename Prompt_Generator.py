@@ -19,6 +19,8 @@ def prompt_generator(data, education, work, task_id, prompt_type):
     # 对语言能力进行替换
     replace_dict = {3: 'high', 2: 'intermediate', 1: 'low', 0: 'no'}
     data.iloc[:, 6:12] = data.iloc[:, 6:12].map(replace_dict.get)
+    # 打乱数据顺序
+    data = data.sample(frac=1).reset_index(drop=True)
     # 提取对应task_id的数据
     task_data = data[data['task_id'] == task_id]
     edu_data = education[education['id'].isin(task_data['id'])]
@@ -53,7 +55,7 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'{information}\n'
                 f'Given the examples of previously successful candidates, '
                 f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
-                f'Respond with the following format: @@@ Candidate ID: id1 Reason: , ......, id{row["count"]} Reason: @@@\n'
+                f'Respond with the following format: @@@ Candidate ID: id1, ......, id{row["count"]} @@@\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the complete '
                 f'information of ALL the candidates below regardless of the order they appear, '
                 f'!!!The candidates information are:\n'
@@ -98,7 +100,7 @@ def prompt_generator(data, education, work, task_id, prompt_type):
                 f'{summary}\n'
                 f'Referring to this information, '
                 f'select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
-                f'Please respond with the following format: @@@ Candidate ID: id1, ..., id{row["count"]} @@@, '
+                f'Please respond with the following format: @@@ Candidates selected: id1, ..., id{row["count"]} @@@, '
                 f'do not include your reasons for selecting them.\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
                 f'information of ALL the candidates below regardless of the order they appear.\n'
@@ -144,10 +146,12 @@ def prompt_generator(data, education, work, task_id, prompt_type):
         description = (
             f'You are a member of the United Nations Human Rights Council(UNHRC), '
             f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
-            f'Please select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
-            f'Respond with the following format: @@@ Candidate ID: id1 Reason: , ..., id{row["count"]} Reason: @@@\n'
+            f'Review the candidates curriculum information below, summarise the strengths and characteristics of each '
+            f'candidate, then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+            f'Please respond with the following format: @@@ Candidates selected: id1, ..., id{row["count"]} @@@,'
+            f' do not include your reasons for selecting them.\n'
             f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
-            f'information of ALL the candidates below regardless of the order they appear.\n'
+            f'list of ALL the candidates below regardless of the order they appear.\n'
             f'The candidates information are:\n'
         )
         description += candidate_information(task_data, edu_data, work_data) + "\n"

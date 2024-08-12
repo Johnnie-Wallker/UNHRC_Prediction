@@ -1,27 +1,25 @@
-from openai import OpenAI
-from sklearn.metrics import accuracy_score, f1_score
-from PromptGenerator import prompt_generator
-from DataHandler import data_handler
-from ID_Finder import id_finder
 import pandas as pd
 import re
-import numpy as np
+from openai import OpenAI
+from sklearn.metrics import accuracy_score, f1_score
+from Prompt_Generator import prompt_generator
+from Data_Handler import data_handler, int_md5_transform
+from Result_Logger import create_result
+
 # 读取数据
 data = pd.read_excel('data.xlsx')
 stage = 1
 data = data_handler(data, stage)
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
+# 将ID信息转换为MD5码
+data['id'] = data['id'].apply(lambda x: int_md5_transform(num=x))
+education['id'] = education['id'].apply(lambda x: int_md5_transform(num=x))
+work['id'] = work['id'].apply(lambda x: int_md5_transform(num=x))
+# 配置API
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
 prompt_type = 'None'
 id_pred_map = {id_: 0 for id_ in data['id'].unique()}
-# 随机打乱组内ID
-shuffled_data = (data
-        .groupby('task_id')
-        .apply(lambda x: x.assign(id=np.random.permutation(x['id'])), include_groups=False)
-        .sort_values(by='id')
-        .reset_index(drop=True))
-data = shuffled_data.merge(data[['id', 'task_id']].drop_duplicates(), on='id', how='left')
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
@@ -30,16 +28,19 @@ for i in range(len(data['task_id'].unique())):
     # 大模型回复
     response = client.chat.completions.create(
         model="deepseek-chat",
-        temperature=1,
+        temperature=0.7,
         messages=[
             {"role": "user", "content": f'{task_description}'},
         ],
         stream=False
     )
     # 提取候选人ID
-    numbers = re.findall(r"Candidate ID: (\d+)", response.choices[0].message.content)
+    # numbers = re.findall(r'\d+',
+    #                      re.search(r'@@@ Candidate ID: (.*?) @@@', response.choices[0].message.content).group(1))
+    numbers = re.findall(r'\b[a-f0-9]{6}\b',
+                         re.search(r'@@@ Candidate ID: (.*?) @@@', response.choices[0].message.content).group(1))
     for number in numbers:
-        id_pred_map[int(number)] = 1
+        id_pred_map[number] = 1
     print(f'Current Progress: {round((i / len(data["task_id"].unique())) * 100, 1)}%\n '
           f'Task ID: {task_id} Candidates shortlisted are: {numbers}')
 
@@ -52,14 +53,14 @@ acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print(f'准确率为：{acc} 召回率为：{f1}')
 # 将结果转为数据集
-id_finder(data, f'DeepSeek_{prompt_type}', stage)
+create_result(data, f'DeepSeek_{prompt_type}_test', stage)
 
 # 简历筛选轮：
 # 1.无样例 准确率为：0.6499162479061976 召回率为：0.4715549936788875
 # 2.有样例 准确率为：0.6390284757118928 召回率为：0.45512010113780027
 # 3.无样例(细节) 准确率为：0.7018425460636516 召回率为：0.549936788874842
 # 4.有样例(细节) 准确率为：0.7043551088777219 召回率为：0.5537294563843237
-# 5.有总结文本(细节) 准确率为：0.6859296482412061 召回率为：0.5259165613147914
+# 5.有总结文本(细节) 准确率为：0.6934673366834171 召回率为：0.5372945638432364
 # 6.RuleSet(细节) 准确率为：0.6595477386934674 召回率为：0.4857685009487666
 # 7.Prototype(细节) 准确率为：0.6654103852596315 召回率为：0.4946236559139785
 

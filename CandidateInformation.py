@@ -6,8 +6,6 @@ def candidate_information(task_data, edu_data, work_data, detail=True):
     description = ''
     edu_data = edu_data[['id', 'eduinfo', 'years-final']]
     work_data = work_data[['id', 'workinfo', 'years']]
-    edu_data = edu_data.dropna()
-    work_data = work_data.dropna()
     # 将每名参选者的信息添加
     for _, row in task_data.iterrows():
         candidate_id = row['id']

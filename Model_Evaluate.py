@@ -2,7 +2,7 @@ import pandas as pd
 pd.options.mode.copy_on_write = True
 
 
-def evaluate_model(model, data):
+def modeval(model, data):
     # 创建空白列表
     result = []
     for i in range(len(data['task_id'].unique())):
@@ -23,8 +23,8 @@ def evaluate_model(model, data):
         # 将小于等于通过人数的行预测为1
         test.loc[:, 'pred'] = test.apply(lambda x: 1 if x['rank'] <= x['count'] else 0, axis=1)
         # 提取结果
-        for i in range(test.shape[0]):
-            result.append({'id': test['id'].tolist()[i], 'pred': test['pred'].tolist()[i]})
+        for j in range(test.shape[0]):
+            result.append({'id': test['id'].tolist()[j], 'pred': test['pred'].tolist()[j]})
         print(f'Current Progress: {round((i/len(data["task_id"].unique()))*100,1)}%')
 
     return result
