@@ -20,7 +20,7 @@ education['id'] = education['id'].apply(lambda x: int_md5_transform(num=x))
 work['id'] = work['id'].apply(lambda x: int_md5_transform(num=x))
 # 配置API
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
-prompt_type = 'Summary'
+prompt_type = 'Train'
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
@@ -40,6 +40,7 @@ for i in range(len(data['task_id'].unique())):
         if match:
             numbers = re.findall(r'\b[a-f0-9]{6}\b', match.group(1))
             token_count.append(response.usage.prompt_tokens)
+            break
         else:
             retries += 1
     numbers = [int_md5_transform(md5_hash=hash_val, reverse=True) for hash_val in numbers]
