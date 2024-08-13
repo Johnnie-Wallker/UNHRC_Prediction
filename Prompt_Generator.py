@@ -8,7 +8,7 @@ pd.options.mode.copy_on_write = True
 
 
 def summary_writer(information, mandate, task_id):
-    folder_path = os.path.join('Summary', task_id)
+    folder_path = f'Summary/{task_id}'
     os.makedirs(folder_path, exist_ok=True)
     file_path = os.path.join(folder_path, "summary.txt")
     if os.path.exists(file_path):
