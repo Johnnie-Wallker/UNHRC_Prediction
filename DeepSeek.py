@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score, f1_score
 from Prompt_Generator import prompt_generator
 from Data_Handler import data_handler, int_md5_transform
 from Result_Logger import log_result
+from collections import Counter
 
 # 读取数据
 data = pd.read_excel('data.xlsx')
@@ -24,30 +25,34 @@ prompt_type = 'Train'
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
-    retries = 0
-    numbers = None
-    task_description = prompt_generator(data, education, work, task_id, prompt_type)
-    while retries < 5:
-        response = client.chat.completions.create(
-            model="deepseek-chat",
-            temperature=0.3,
-            messages=[
-                {"role": "user", "content": f'{task_description}'},
-            ],
-            stream=False
-        )
-        match = re.search(r'@@@ Candidates selected: (.*?) @@@', response.choices[0].message.content)
-        if match:
-            numbers = re.findall(r'\b[a-f0-9]{6}\b', match.group(1))
-            token_count.append(response.usage.prompt_tokens)
-            break
-        else:
-            retries += 1
+    numbers = []
+    response = None
+    count = data[data['task_id'] == task_id]['count'].max()
+    for j in range(10):
+        retries = 0
+        task_description = prompt_generator(data, education, work, task_id, prompt_type)
+        while retries < 5:
+            response = client.chat.completions.create(
+                model="deepseek-chat",
+                messages=[
+                    {"role": "user", "content": f'{task_description}'},
+                ],
+                stream=False
+            )
+            match = re.search(r'@@@ Candidates selected: (.*?) @@@', response.choices[0].message.content)
+            if match:
+                numbers.append(re.findall(r'\b[a-f0-9]{6}\b', match.group(1)))
+                break
+            else:
+                retries += 1
+    all_md5_hashes = [md5 for sublist in numbers for md5 in sublist]
+    numbers = [md5 for md5, _ in Counter(all_md5_hashes).most_common(count)]
+    token_count.append(response.usage.prompt_tokens)
     numbers = [int_md5_transform(md5_hash=hash_val, reverse=True) for hash_val in numbers]
     numbers.sort()
     for number in numbers:
         id_pred_map[number] = 1
-    print(f'Current Progress: {round((i / len(data["task_id"].unique())) * 100, 1)}%\n '
+    print(f'Current Progress: {round(((i+1) / len(data["task_id"].unique())) * 100, 1)}%\n '
           f'Task ID: {task_id} Candidates shortlisted are: {numbers}')
 
 # 提取结果
@@ -77,3 +82,6 @@ log_result(data, stage, 'DeepSeek', prompt_type, token_count)
 # 4.有样例(细节) 准确率为：0.6867469879518072 召回率为：0.3048128342245989
 # 5.有总结文本(细节) 准确率为：0.6987951807228916 召回率为：0.3315508021390374
 # 6.RuleSet(细节) 准确率为：0.6698795180722892 召回率为：0.26737967914438504
+
+# 简历筛选轮：
+# 无样例（10次投票） 准确率为：0.6850921273031826 召回率为：0.5246523388116309
