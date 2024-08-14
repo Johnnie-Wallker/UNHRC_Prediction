@@ -51,6 +51,8 @@ def prompt_generator(data, education, work, task_id, prompt_type, small_group=No
         task_data = small_group.copy()
     else:
         task_data = data[data['task_id'] == task_id]
+        # 打乱数据顺序
+        task_data = task_data.sample(frac=1).reset_index(drop=True)
     edu_data = education[education['id'].isin(task_data['id'])]
     work_data = work[work['id'].isin(task_data['id'])]
     # 提取每个职位对应的全部task_id
@@ -104,7 +106,8 @@ def prompt_generator(data, education, work, task_id, prompt_type, small_group=No
                 f'summarise the strengths and characteristics of each candidate according to the mandate and summary, '
                 f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
                 f'Please respond with the following format: '
-                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@，\n'
+                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@,'
+                f'do not include your reasons for selecting them，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
                 f'list of ALL the candidates below regardless of the order they appear.\n'
                 f'The candidates information are:\n'
