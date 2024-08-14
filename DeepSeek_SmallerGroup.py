@@ -29,7 +29,7 @@ for i in range(len(data['task_id'].unique())):
     group = task_df.sample(count + 1)
     task_df = task_df[~task_df['id'].isin(group['id'])]
     retries = 0
-    while len(task_df) != 0:
+    if len(task_df) == 0:
         retries = 0
         task_description = prompt_generator(data, education, work, task_id, prompt_type, group)
         while retries < 5:
@@ -46,11 +46,29 @@ for i in range(len(data['task_id'].unique())):
                 break
             else:
                 retries += 1
-        group = group[group['id'].isin(numbers)]
-        new_data = task_df.sample(1)
-        group = pd.concat([group, new_data])
-        group = group.sample(frac=1).reset_index(drop=True)
-        task_df = task_df[~task_df['id'].isin(new_data['id'])]
+    else:
+        while len(task_df) != 0:
+            retries = 0
+            task_description = prompt_generator(data, education, work, task_id, prompt_type, group)
+            while retries < 5:
+                response = client.chat.completions.create(
+                    model="deepseek-chat",
+                    messages=[
+                        {"role": "user", "content": f'{task_description}'},
+                    ],
+                    stream=False
+                )
+                match = re.search(r'@@@ Candidates selected: (.*?) @@@', response.choices[0].message.content)
+                if match:
+                    numbers = re.findall(r'\b[a-f0-9]{6}\b', match.group(1))
+                    break
+                else:
+                    retries += 1
+            group = group[group['id'].isin(numbers)]
+            new_data = task_df.sample(1)
+            group = pd.concat([group, new_data])
+            group = group.sample(frac=1).reset_index(drop=True)
+            task_df = task_df[~task_df['id'].isin(new_data['id'])]
     numbers = [int_md5_transform(md5_hash=hash_val, reverse=True) for hash_val in numbers]
     numbers.sort()
     for number in numbers:
