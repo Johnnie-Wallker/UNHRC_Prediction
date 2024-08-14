@@ -44,20 +44,13 @@ def summary_writer(information, mandate, task_id):
     return summary
 
 
-def prompt_generator(data, education, work, task_id, prompt_type, detail=True):
+def prompt_generator(data, education, work, task_id, prompt_type, small_group=None, detail=True):
     description = ''
-    # 填充空缺值
-    data = data.fillna(0)
-    data.iloc[:, 5:25] = data.iloc[:, 5:25].astype('int')
-    # 替换年龄空缺值
-    data['age'] = data['age'].replace(0, 'Unknown')
-    # 对语言能力进行替换
-    replace_dict = {3: 'high', 2: 'intermediate', 1: 'low', 0: 'no'}
-    data.iloc[:, 6:12] = data.iloc[:, 6:12].map(replace_dict.get)
-    # 打乱数据顺序
-    data = data.sample(frac=1).reset_index(drop=True)
     # 提取对应task_id的数据
-    task_data = data[data['task_id'] == task_id]
+    if small_group is not None:
+        task_data = small_group.copy()
+    else:
+        task_data = data[data['task_id'] == task_id]
     edu_data = education[education['id'].isin(task_data['id'])]
     work_data = work[work['id'].isin(task_data['id'])]
     # 提取每个职位对应的全部task_id

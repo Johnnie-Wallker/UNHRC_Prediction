@@ -2,9 +2,10 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
-def candidate_information(task_data, edu_data, work_data, detail=True):
+def candidate_information(task_data, edu_data, work_data, detail):
     description = ''
     edu_data = edu_data[['id', 'eduinfo', 'years-final']]
+    work_data['years'] = work_data['years'].str.strip("'\"")
     work_data = work_data[['id', 'workinfo', 'years']]
     # 将每名参选者的信息添加
     for _, row in task_data.iterrows():
@@ -70,3 +71,50 @@ def candidate_information(task_data, edu_data, work_data, detail=True):
         description += candidate_info
 
     return description
+
+
+def single_candidate_information(data, education, work, candidate_id):
+    description = ''
+    # 填充空缺值
+    data = data.fillna(0)
+    data.iloc[:, 5:25] = data.iloc[:, 5:25].astype('int')
+    # 替换年龄空缺值
+    data['age'] = data['age'].replace(0, 'Unknown')
+    # 对语言能力进行替换
+    replace_dict = {3: 'high', 2: 'intermediate', 1: 'low', 0: 'no'}
+    data.iloc[:, 6:12] = data.iloc[:, 6:12].map(replace_dict.get)
+    basic_data = data.loc[data['id'] == candidate_id]
+    edu_data = education.loc[education['id'] == candidate_id, ['eduinfo', 'years-final']]
+    work['years'] = work['years'].str.strip("'\"")
+    work_data = work.loc[work['id'] == candidate_id, ['workinfo', 'years']]
+    # 将每名参选者的信息添加
+    for _, row in basic_data.iterrows():
+        he_she = "He" if row['gender_final'] == 1 else "She"
+        his_her = "His" if row['gender_final'] == 1 else "Her"
+        nationality = row['nationality_final']
+        if row['other nationality_final'] != 0:
+            nationality += f' and {row["other nationality_final"]}'
+        candidate_info = (
+            f'{he_she} is a citizen of {nationality} of age {row["age"]}. '
+        )
+        # 语言能力
+        languages = {
+            'english_level': row['english_level'],
+            'french_level': row['french_level'],
+            'arabic_level': row['arabic_level'],
+            'chinese_level': row['chinese_level'],
+            'russian_level': row['russian_level'],
+            'spanish_level': row['spanish_level']
+        }
+        language_info = ', '.join(
+            [f"{level} {language.replace('_', ' ')}" for language, level in languages.items() if level != 'no'])
+        candidate_info += f"{he_she} has {language_info}.\n"
+        candidate_info += f'{his_her} educational background is as following:\n'
+        for _, edu_row in edu_data.iterrows():
+            candidate_info += f'{edu_row["years-final"]}: {edu_row["eduinfo"]}.\n'
+        candidate_info += f'{his_her} working background is as following:\n'
+        for _, work_row in work_data.iterrows():
+            candidate_info += f'{work_row["years"]}: {work_row["workinfo"]}\n'
+        description += candidate_info
+
+        return description
