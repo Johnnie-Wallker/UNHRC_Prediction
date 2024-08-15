@@ -4,6 +4,7 @@ from openai import OpenAI
 from sklearn.metrics import accuracy_score, f1_score
 from Prompt_Generator import prompt_generator
 from Data_Handler import data_handler, int_md5_transform
+from Result_Logger import log_result
 
 # 读取数据
 data = pd.read_excel('data.xlsx')
@@ -19,6 +20,7 @@ work['id'] = work['id'].apply(lambda x: int_md5_transform(num=x))
 # 配置API
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
 prompt_type = 'None'
+token_count = []
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
@@ -69,6 +71,7 @@ for i in range(len(data['task_id'].unique())):
             group = pd.concat([group, new_data])
             group = group.sample(frac=1).reset_index(drop=True)
             task_df = task_df[~task_df['id'].isin(new_data['id'])]
+    token_count.append(response.usage.prompt_tokens)
     numbers = [int_md5_transform(md5_hash=hash_val, reverse=True) for hash_val in numbers]
     numbers.sort()
     for number in numbers:
@@ -84,3 +87,7 @@ data = pd.merge(data, pred, on='id', how='left')
 acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print(f'准确率为：{round(acc, 3)} 召回率为：{round(f1, 3)}')
+# 将结果转为数据集
+log_result(data, stage, 'DeepSeek', f'{prompt_type}_SmallGroup', token_count)
+
+# 准确率为：0.678 召回率为：0.515

@@ -30,7 +30,7 @@ education['id'] = education['id'].apply(lambda x: int_md5_transform(num=x))
 work['id'] = work['id'].apply(lambda x: int_md5_transform(num=x))
 # 配置API
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
-prompt_type = 'Summary'
+prompt_type = 'None'
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
@@ -73,7 +73,7 @@ acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
 print(f'准确率为：{round(acc, 3)} 召回率为：{round(f1, 3)}')
 # 将结果转为数据集
-log_result(data, stage, 'DeepSeek', prompt_type, token_count)
+log_result(data, stage, 'DeepSeek', f'{prompt_type}', token_count)
 
 # 简历筛选轮：
 # 1.无样例 准确率为：0.6499162479061976 召回率为：0.4715549936788875
@@ -95,4 +95,5 @@ log_result(data, stage, 'DeepSeek', prompt_type, token_count)
 # 简历筛选轮：
 # 无样例（10次投票） 准确率为：0.685 召回率为：0.524
 # 有样例（10次投票） 准确率为：0.683 召回率为：0.519
+# 总结文本（10次投票） 准确率为：0.696 召回率为：0.541
 # 无样例（20次投票） 准确率为：0.704 召回率为：0.552
