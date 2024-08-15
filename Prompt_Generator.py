@@ -117,6 +117,27 @@ def prompt_generator(data, education, work, task_id, prompt_type, small_group=No
                 f'The candidates information are:\n'
             )
             description += candidate_information(task_data, edu_data, work_data, detail) + "\n"
+        if prompt_type == 'Train+Summary':
+            row = task_data.iloc[0]
+            summary = summary_writer(information, row['mandate'], task_id)
+            description = (
+                f'You are a member of the United Nations Human Rights Council(UNHRC), '
+                f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
+                f'In the previous years, the council has held meetings on the same mandate, '
+                f'the information of the candidates in these meetings are:\n{information}'
+                f'In addition, scholars have summarised the key features of successful candidates in these meetings:\n'
+                f'{summary}According to this information, review the candidates curriculum information below, '
+                f'summarise the strengths and characteristics of each candidate according to the mandate and summary, '
+                f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'Please respond with the following format: '
+                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@,'
+                f'do not include your reasons for selecting them，\n'
+                f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
+                f'list of ALL the candidates below regardless of the order they appear and make sure you do not select'
+                f'any candidate from any previous meetings, only consider those in the information below.\n'
+                f'The candidates information are:\n'
+            )
+            description += candidate_information(task_data, edu_data, work_data, detail) + "\n"
         if prompt_type == 'RuleSet':
             ruleset = ruleset_generator(train_data)
             row = task_data.iloc[0]
@@ -129,7 +150,8 @@ def prompt_generator(data, education, work, task_id, prompt_type, small_group=No
                 f'summarise the strengths and characteristics of each candidate, '
                 f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
                 f'Please respond with the following format: '
-                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@，\n'
+                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@, '
+                f'do not include your reasons for selecting them.\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
                 f'list of ALL the candidates below regardless of the order they appear.\n'
                 f'The candidates information are:\n'
@@ -147,7 +169,8 @@ def prompt_generator(data, education, work, task_id, prompt_type, small_group=No
                 f'summarise the strengths and characteristics of each candidate, '
                 f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
                 f'Please respond with the following format: '
-                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@，\n'
+                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@, '
+                f'do not include your reasons for selecting them，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
                 f'list of ALL the candidates below regardless of the order they appear.\n'
                 f'The candidates information are:\n'
