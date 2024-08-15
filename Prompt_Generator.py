@@ -10,7 +10,7 @@ pd.options.mode.copy_on_write = True
 def summary_writer(information, mandate, task_id):
     folder_path = f'Summary/{task_id}'
     os.makedirs(folder_path, exist_ok=True)
-    file_path = os.path.join(folder_path, "summary.txt")
+    file_path = os.path.join(folder_path, "summary_test2.txt")
     if os.path.exists(file_path):
         with open(file_path, 'r') as file:
             summary = file.read()
@@ -19,19 +19,23 @@ def summary_writer(information, mandate, task_id):
         response = client.chat.completions.create(
             model="deepseek-chat",
             messages=[
-                {"role": "user", "content": f'You are an academic that is now studying what qualities a successful '
+                {"role": "user", "content": f'You are a researcher trying to study the qualities of a successful '
                                             f'candidate for {mandate} in the United Nations Human Rights Council.'
                                             f'The candidates information in these UNHRC meetings are {information}.'
-                                            f'Summarise the keys features of successful candidates, \n'
-                                            f'focus (but not only focus) on the following points:\n'
-                                            f'1. Is there a trend in age or language abilities '
-                                            f'among the successful candidates?'
-                                            f'2. Does certain gender has an advantage over the other?\n'
-                                            f'3. Does certain nationality has an advantage over the others?\n'
-                                            f'4. Does the legal tradition (Based on nationality, '
+                                            f'Summarise the key features of successful candidates. \n'
+                                            f'Make sure that no middle ground answers are acceptable, \n'
+                                            f'since the entire council will rely on you to make their decisions. \n'
+                                            f'You have to watch out for all kinds of, even the slightest differences among the candidates. \n'
+                                            f'Focus but not only focus on the following points (be aware that since data is limited, every example provided above is valuable, and they reflect key features):\n'
+                                            f'1. Is there a trend in age for the candidates? Is there an age range for the candidates being shortlisted? \n'
+                                            f'2. Is there a trend in language abilities among the successful candidates? Are they typically required to be fluent in some particular major languages? \n'
+                                            f'3. Does certain gender have an advantage over the other? Study the proportion of male and female shortlisted candidates based off the pronounce being used.\n'
+                                            f'4. Does certain nationality or the regions in which the candidates were born \n'
+                                            f'have an advantage over the others? Which regions produce the most successful candidates? \n'
+                                            f'5. Does the legal tradition (Based on nationality, '
                                             f'location of education etc.) of the candidate make '
                                             f'the candidate more likely to be successful?\n'
-                                            f'5. Does the location of education or the diversity of the location '
+                                            f'6. Does the location of education or the diversity of the location '
                                             f'of education(i.e. whether the university is in a OECD country or in '
                                             f'the global south) makes the candidate more likely to be successful?'},
             ],
