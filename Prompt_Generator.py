@@ -4,6 +4,7 @@ from openai import OpenAI
 from CandidateInformation import candidate_information
 from RuleSet import ruleset_generator
 from Prototype import prototype_generator
+
 pd.options.mode.copy_on_write = True
 
 
@@ -48,15 +49,14 @@ def summary_writer(information, mandate, task_id):
     return summary
 
 
-def prompt_generator(data, education, work, task_id, prompt_type, small_group=None, detail=True):
+def prompt_generator(data, education, work, task_id, prompt_type, small_group=None, detail=True, shuffle=True):
     description = ''
-    # 提取对应task_id的数据
     if small_group is not None:
         task_data = small_group.copy()
     else:
         task_data = data[data['task_id'] == task_id]
-        # 打乱数据顺序
-        task_data = task_data.sample(frac=1).reset_index(drop=True)
+        if shuffle:
+            task_data = task_data.sample(frac=1).reset_index(drop=True)
     edu_data = education[education['id'].isin(task_data['id'])]
     work_data = work[work['id'].isin(task_data['id'])]
     # 提取每个职位对应的全部task_id
