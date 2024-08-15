@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score
-from Model_Evaluate import evaluate_model
+from Model_Evaluate import modeval
 from Data_Handler import data_handler
 from xgboost import XGBClassifier
 from Result_Logger import log_result
@@ -8,7 +8,7 @@ from Result_Logger import log_result
 
 # 读取数据
 data = pd.read_excel('data.xlsx')
-stage = 1
+stage = 2
 data = data_handler(data, stage)
 data['other nationality_final'] = data['other nationality_final'].astype('category')
 education = pd.read_excel('data.xlsx', sheet_name=1)
@@ -32,12 +32,12 @@ data.columns = new_columns
 # 创建XGBoost
 xgb = XGBClassifier(objective='binary:logistic', seed=1, enable_categorical=True)
 # 获取预测结果
-pred = pd.DataFrame(evaluate_model(xgb, data))
+pred = pd.DataFrame(modeval(xgb, data))
 data = pd.merge(data, pred, on='id', how='left')
 # 计算准确率
 acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
-print('准确率为：', acc, '召回率为：', f1)
+print(f'准确率为：{round(acc, 3)} 召回率为：{round(f1, 3)}')
 # 获取具体ID信息
 log_result(data, 'XGBoost_WithDetail', stage)
 # 简历筛选轮：

@@ -26,7 +26,7 @@ data = pd.merge(data, pred, on='id', how='left')
 # 计算准确率
 acc = accuracy_score(data['interviewed'], data['pred'])
 f1 = f1_score(data['interviewed'], data['pred'])
-print('准确率为：', acc, '召回率为：', f1)
+print(f'准确率为：{round(acc, 3)} 召回率为：{round(f1, 3)}')
 # 获取具体ID信息
 log_result(data, 'XGBoost', stage)
 # 简历筛选轮：
