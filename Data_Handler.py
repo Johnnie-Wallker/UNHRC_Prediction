@@ -39,9 +39,10 @@ def data_handler(data, stage):
     else:
         data = data[data['interviewed'] == 1]
         data = data.drop(columns='interviewed')
+        data['interviewed'] = data['selected']
         data['count'] = data.groupby('task_id')['selected'].transform('sum')
+        data = data.drop(columns='selected')
         data = data[data['count'] != 0]
-        data = data.rename(columns={'selected': 'interviewed'})
     # 将文本转化为类别
     data['nationality_final'] = data['nationality_final'].astype('category')
     data['mandate'] = data['mandate'].astype('category')

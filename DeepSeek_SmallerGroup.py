@@ -6,21 +6,33 @@ from Prompt_Generator import prompt_generator
 from Data_Handler import data_handler, int_md5_transform
 from Result_Logger import log_result
 
+# 设置参数
+prompt_type = 'None'
+stage = 1
+shuffle = False
+client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
+model = "deepseek-chat"
 # 读取数据
 data = pd.read_excel('data.xlsx')
-stage = 1
 data = data_handler(data, stage)
 education = pd.read_excel('data.xlsx', sheet_name=1)
 work = pd.read_excel('data.xlsx', sheet_name=2)
+# 填充空缺值
+data = data.fillna(0)
+data.iloc[:, 5:25] = data.iloc[:, 5:25].astype('int')
+# 替换年龄空缺值
+data['age'] = data['age'].replace(0, 'Unknown')
+# 对语言能力进行替换
+replace_dict = {3: 'high', 2: 'intermediate', 1: 'low', 0: 'no'}
+data.iloc[:, 6:12] = data.iloc[:, 6:12].map(replace_dict.get)
+# 准备记录结果
 id_pred_map = {id_: 0 for id_ in data['id'].unique()}
+token_count = []
 # 将ID信息转换为MD5码
 data['id'] = data['id'].apply(lambda x: int_md5_transform(num=x))
 education['id'] = education['id'].apply(lambda x: int_md5_transform(num=x))
 work['id'] = work['id'].apply(lambda x: int_md5_transform(num=x))
-# 配置API
-client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
-prompt_type = 'None'
-token_count = []
+
 # 遍历每个任务ID
 for i in range(len(data['task_id'].unique())):
     task_id = data['task_id'].unique()[i]
@@ -33,10 +45,11 @@ for i in range(len(data['task_id'].unique())):
     retries = 0
     if len(task_df) == 0:
         retries = 0
-        task_description = prompt_generator(data, education, work, task_id, prompt_type, group)
+        task_description = prompt_generator(data, education, work, task_id, prompt_type, stage=stage,
+                                            shuffle=shuffle, small_group=group, model=model, client=client)
         while retries < 5:
             response = client.chat.completions.create(
-                model="deepseek-chat",
+                model=model,
                 messages=[
                     {"role": "user", "content": f'{task_description}'},
                 ],
@@ -51,7 +64,8 @@ for i in range(len(data['task_id'].unique())):
     else:
         while len(task_df) != 0:
             retries = 0
-            task_description = prompt_generator(data, education, work, task_id, prompt_type, group)
+            task_description = prompt_generator(data, education, work, task_id, prompt_type, stage=stage,
+                                                shuffle=shuffle, small_group=group, model=model, client=client)
             while retries < 5:
                 response = client.chat.completions.create(
                     model="deepseek-chat",
