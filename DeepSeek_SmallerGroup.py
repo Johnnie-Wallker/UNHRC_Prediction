@@ -7,7 +7,7 @@ from Data_Handler import data_handler, int_md5_transform
 from Result_Logger import log_result
 
 # 设置参数
-prompt_type = 'None'
+prompt_type = 'Summary'
 stage = 1
 shuffle = False
 detail = True
