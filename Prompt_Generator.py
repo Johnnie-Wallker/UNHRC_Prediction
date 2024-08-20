@@ -25,29 +25,15 @@ def summary_writer(information, mandate, task_id, detail, client, model, stage):
     if detail:
         file_path = os.path.join(folder_path, "summary_detail.txt")
         if os.path.exists(file_path):
-            with open(file_path, 'r') as file:
+            with open(file_path, 'r', encoding='utf-8') as file:
                 summary = file.read()
         else:
             prompt = (f'You are a researcher studying the qualities of successful candidates for {mandate} in the '
                       f'United Nations Human Rights Council. The candidates information in these UNHRC meetings are '
-                      f'{information}\nSummarise the key features of successful candidates referring to the mandate '
-                      f'information, ensure that your summary is not vague and ambiguous since this summary should '
-                      f'aim to provide a clear guideline towards candidate selection process in the UNHRC. Focus but '
-                      f'not only focus on the following questions(Do not mention the candidate IDs in your summary):\n'
-                      f'1. Is there a trend in age for the candidates, i.e. is there a certain age range for the '
-                      f'shortlisted candidates? \n'
-                      f'2. Is there a trend in language abilities among the successful candidates? Are they typically '
-                      f'required to be fluent in some particular major languages for this mandate? \n'
-                      f'3. Does certain gender have an advantage over the other? Be specific and do not simply '
-                      f'consider the selection to be free of gender bias when there are both male and female '
-                      f'shortlisted candidates, focus on the proportion of each gender, are they similar?\n'
-                      f'4. Does certain nationality or the regions in which the candidates were born have an advantage '
-                      f'over the others? Which regions/countries have the most successful candidates?\n'
-                      f'5. Does the legal tradition (Based on nationality, location of education etc.) of the candidate'
-                      f' make the candidate more likely to be successful?\n'
-                      f'6. Does the location of education or the diversity of the location of education(i.e. whether '
-                      f'the university is in a OECD country/global south/both) makes the candidate more '
-                      f'likely to be successful?')
+                      f'{information}\nReferring to this specific mandate, summarise the key features of the '
+                      f'shortlisted candidates , ensure that your summary is not vague and ambiguous, this summary '
+                      f'should aim to provide a clear guideline towards candidate selection process in the UNHRC. '
+                      f'Do not mention the specific candidate IDs in your summary.')
             response = client.chat.completions.create(
                 model=model,
                 messages=[
@@ -61,16 +47,15 @@ def summary_writer(information, mandate, task_id, detail, client, model, stage):
     else:
         file_path = os.path.join(folder_path, "summary.txt")
         if os.path.exists(file_path):
-            with open(file_path, 'r') as file:
+            with open(file_path, 'r', encoding='utf-8') as file:
                 summary = file.read()
         else:
-            prompt = (
-                f'You are a researcher studying the qualities of successful candidates for {mandate} in the United '
-                f'Nations Human Rights Council. The candidates information in these UNHRC meetings are {information}'
-                f'Summarise the key features of successful candidates referring to the mandate information, '
-                f'ensure that your summary is not vague and ambiguous since this summary should aim to provide a '
-                f'clear guideline towards candidate selection process in the UNHRC.'
-                f'(Do not mention the candidate IDs in your summary)')
+            prompt = (f'You are a researcher studying the qualities of successful candidates for {mandate} in the '
+                      f'United Nations Human Rights Council. The candidates information in these UNHRC meetings are '
+                      f'{information}\nReferring to this specific mandate, summarise the key features of the '
+                      f'shortlisted candidates , ensure that your summary is not vague and ambiguous, this summary '
+                      f'should aim to provide a clear guideline towards candidate selection process in the UNHRC. '
+                      f'Do not mention the specific candidate IDs in your summary.')
             response = client.chat.completions.create(
                 model=model,
                 messages=[

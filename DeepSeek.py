@@ -62,6 +62,7 @@ def run_deepseek(config, save_result=False):
                         break
                 else:
                     retries += 1
+                    print('Error occurred, retrying...')
         all_md5_hashes = [md5 for sublist in numbers for md5 in sublist]
         numbers = [md5 for md5, _ in Counter(all_md5_hashes).most_common(count)]
         token_count.append(response.usage.prompt_tokens)
@@ -79,7 +80,6 @@ def run_deepseek(config, save_result=False):
     acc = accuracy_score(data['interviewed'], data['pred'])
     f1 = f1_score(data['interviewed'], data['pred'])
     if save_result:
-        # 将结果转为数据集
         log_result(data, stage, 'DeepSeek', f'{prompt_type}', token_count)
 
     return {'accuracy': acc, 'f1_score': f1}
