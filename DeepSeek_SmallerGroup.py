@@ -10,6 +10,7 @@ from Result_Logger import log_result
 prompt_type = 'None'
 stage = 1
 shuffle = False
+detail = True
 client = OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com")
 model = "deepseek-chat"
 # 读取数据
@@ -45,7 +46,7 @@ for i in range(len(data['task_id'].unique())):
     retries = 0
     if len(task_df) == 0:
         retries = 0
-        task_description = prompt_generator(data, education, work, task_id, prompt_type, stage=stage,
+        task_description = prompt_generator(data, education, work, task_id, prompt_type, stage=stage, detail=detail,
                                             shuffle=shuffle, small_group=group, model=model, client=client)
         while retries < 5:
             response = client.chat.completions.create(
@@ -64,7 +65,7 @@ for i in range(len(data['task_id'].unique())):
     else:
         while len(task_df) != 0:
             retries = 0
-            task_description = prompt_generator(data, education, work, task_id, prompt_type, stage=stage,
+            task_description = prompt_generator(data, education, work, task_id, prompt_type, stage=stage, detail=detail,
                                                 shuffle=shuffle, small_group=group, model=model, client=client)
             while retries < 5:
                 response = client.chat.completions.create(
