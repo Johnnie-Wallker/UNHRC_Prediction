@@ -96,12 +96,16 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
     task_id_map = {task_id: [tid for tid in task_ids if tid != task_id]
                    for task_ids in mandate_groups for task_id in task_ids}
     task_id_map = pd.DataFrame(task_id_map.items(), columns=['task_id', 'related_task_ids'])
+    row = task_data.iloc[0]
+    if row['count'] != 1:
+        guideline = f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@,'
+    else:
+        guideline = f'@@@ Candidate selected: id @@@,'
     if prompt_type != 'None' and task_id in task_id_map.loc[:, 'task_id'].values:
         information = relevant_information(data, education, work, task_id_map, detail, task_id)
         train_data = data[
             data['task_id'].isin(task_id_map.loc[task_id_map['task_id'] == task_id, 'related_task_ids'].values[0])]
         if prompt_type == 'Train':
-            row = task_data.iloc[0]
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
@@ -109,9 +113,8 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
                 f'the information of the candidates in these meetings are:\n{information}'
                 f'Now that you have had some experience, review the candidates curriculum information below, '
                 f'summarise the strengths and characteristics of each candidate, '
-                f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
-                f'Please respond with the following format: '
-                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@, '
+                f'then select EXACTLY {row["count"]} candidate(s) that are to be shortlisted for interview.'
+                f'Please respond with the following format: {guideline}'
                 f'do not include your reasons for selecting them，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
                 f'list of ALL the candidates below regardless of the order they appear and make sure you do not select'
@@ -120,7 +123,6 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
             )
             description += candidate_information(task_data, edu_data, work_data, detail) + "\n!!!"
         if prompt_type == 'Summary':
-            row = task_data.iloc[0]
             summary = summary_writer(information, row['mandate'], task_id, detail, client, model, stage)
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
@@ -129,9 +131,9 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
                 f'the key features of successful candidates in these meetings:\n{summary}\n'
                 f'According to this summary, review the candidates curriculum information below, '
                 f'summarise the strengths and characteristics of each candidate according to the mandate and summary, '
-                f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'then select EXACTLY {row["count"]} candidate(s) that are to be shortlisted for interview.'
                 f'Please respond with the following format: '
-                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@, '
+                f'Please respond with the following format: {guideline}'
                 f'do not include your reasons for selecting them，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
                 f'list of ALL the candidates below regardless of the order they appear.\n'
@@ -139,7 +141,6 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
             )
             description += candidate_information(task_data, edu_data, work_data, detail) + "\n"
         if prompt_type == 'Train+Summary':
-            row = task_data.iloc[0]
             summary = summary_writer(information, row['mandate'], task_id, detail, client, model, stage)
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
@@ -149,9 +150,9 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
                 f'In addition, scholars have summarised the key features of successful candidates in these meetings:\n'
                 f'{summary}\nAccording to this information, review the candidates curriculum information below, '
                 f'summarise the strengths and characteristics of each candidate according to the mandate and summary, '
-                f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'then select EXACTLY {row["count"]} candidate(s) that are to be shortlisted for interview.'
                 f'Please respond with the following format: '
-                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@,'
+                f'Please respond with the following format: {guideline}'
                 f'do not include your reasons for selecting them，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
                 f'list of ALL the candidates below regardless of the order they appear and make sure you do not select'
@@ -161,7 +162,6 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
             description += candidate_information(task_data, edu_data, work_data, detail) + "\n"
         if prompt_type == 'RuleSet':
             ruleset = ruleset_generator(train_data)
-            row = task_data.iloc[0]
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
@@ -169,10 +169,10 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
                 f'experts have found that: \n{ruleset}'
                 f'Referring to this information, review the candidates curriculum information below, '
                 f'summarise the strengths and characteristics of each candidate, '
-                f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'then select EXACTLY {row["count"]} candidate(s) that are to be shortlisted for interview.'
                 f'Please respond with the following format: '
-                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@, '
-                f'do not include your reasons for selecting them.\n'
+                f'Please respond with the following format: {guideline}'
+                f'do not include your reasons for selecting them，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
                 f'list of ALL the candidates below regardless of the order they appear.\n'
                 f'The candidates information are:\n'
@@ -180,7 +180,6 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
             description += candidate_information(task_data, edu_data, work_data, detail) + "\n"
         if prompt_type == 'Prototype':
             prototype = prototype_generator(train_data)
-            row = task_data.iloc[0]
             description = (
                 f'You are a member of the United Nations Human Rights Council(UNHRC), '
                 f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
@@ -188,9 +187,9 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
                 f'experts have found that: \n{prototype}'
                 f'Referring to this information, review the candidates curriculum information below, '
                 f'summarise the strengths and characteristics of each candidate, '
-                f'then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+                f'then select EXACTLY {row["count"]} candidate(s) that are to be shortlisted for interview.'
                 f'Please respond with the following format: '
-                f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@, '
+                f'Please respond with the following format: {guideline}'
                 f'do not include your reasons for selecting them，\n'
                 f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
                 f'list of ALL the candidates below regardless of the order they appear.\n'
@@ -198,14 +197,13 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
             )
             description += candidate_information(task_data, edu_data, work_data, detail) + "\n"
     else:
-        row = task_data.iloc[0]
         description = (
             f'You are a member of the United Nations Human Rights Council(UNHRC), '
             f'the council is now holding a meeting for selecting {row["mandate"]}.\n'
             f'Review the candidates curriculum information below, summarise the strengths and characteristics of each '
-            f'candidate, then select EXACTLY {row["count"]} candidates that are to be shortlisted for interview.'
+            f'candidate, then select EXACTLY {row["count"]} candidate(s) that are to be shortlisted for interview.'
             f'Please respond with the following format: '
-            f'@@@ Candidates selected: id1, ..., id{row["count"]} @@@, '
+            f'Please respond with the following format: {guideline}'
             f'do not include your reasons for selecting them，\n'
             f'IMPORTANT: Before selecting any candidate, make sure you have thoroughly reviewed the entire '
             f'list of ALL the candidates below regardless of the order they appear.\n'
