@@ -1,8 +1,9 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df1 = pd.read_csv('Result_Round1/result_DeepSeek_None_SmallGroup.csv')
-df2 = pd.read_csv('Result_Round1/result_DeepSeek_None.csv')
+prompt_type = 'Summary'
+df1 = pd.read_csv(f'Result_Round1/result_DeepSeek_{prompt_type}_SmallGroup.csv')
+df2 = pd.read_csv(f'Result_Round1/result_DeepSeek_{prompt_type}.csv')
 plt.figure(figsize=(15, 6))
 
 plt.subplot(1, 2, 1)
