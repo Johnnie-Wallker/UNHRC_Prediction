@@ -58,7 +58,7 @@ def run_deepseek(save_result=False, **kwargs):
                         ],
                         stream=False
                     )
-                    match = re.search(r'@@@ Candidates selected: (.*?) @@@', response.choices[0].message.content)
+                    match = re.search(r'Candidates selected: (.*?)( @@@|$)', response.choices[0].message.content)
                     if match:
                         pred_numbers = re.findall(r'\b[a-f0-9]{6}\b', match.group(1))
                         if len(pred_numbers) == count:
@@ -90,8 +90,7 @@ def run_deepseek(save_result=False, **kwargs):
                             ],
                             stream=False
                         )
-                        match = re.search(r'@@@ Candidates selected: (.*?) @@@',
-                                          response.choices[0].message.content)
+                        match = re.search(r'Candidates selected: (.*?)( @@@|$)', response.choices[0].message.content)
                         if match:
                             numbers_temp = re.findall(r'\b[a-f0-9]{6}\b', match.group(1))
                             if len(numbers_temp) == count:
