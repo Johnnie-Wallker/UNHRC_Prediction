@@ -58,12 +58,16 @@ def run_deepseek(save_result=False, **kwargs):
                         ],
                         stream=False
                     )
-                    match = re.search(r'Candidates selected: (.*?)( @@@|$)', response.choices[0].message.content)
-                    if match:
+                    match = re.search(r'selected: (.*?)( @@@|$)', response.choices[0].message.content)
+                    if match is not None:
                         pred_numbers = re.findall(r'\b[a-f0-9]{6}\b', match.group(1))
                         if len(pred_numbers) == count:
                             numbers.append(pred_numbers)
                             break
+                        else:
+                            retries += 1
+                            print(f'The response given is: {response.choices[0].message.content}')
+                            print('Error occurred, retrying...')
                     else:
                         retries += 1
                         print(f'The response given is: {response.choices[0].message.content}')
@@ -90,12 +94,16 @@ def run_deepseek(save_result=False, **kwargs):
                             ],
                             stream=False
                         )
-                        match = re.search(r'Candidates selected: (.*?)( @@@|$)', response.choices[0].message.content)
+                        match = re.search(r'selected: (.*?)( @@@|$)', response.choices[0].message.content)
                         if match:
                             numbers_temp = re.findall(r'\b[a-f0-9]{6}\b', match.group(1))
                             if len(numbers_temp) == count:
                                 numbers.append(numbers_temp)
                                 break
+                            else:
+                                retries += 1
+                                print(f'The response given is: {response.choices[0].message.content}')
+                                print('Error occurred, retrying...')
                         else:
                             retries += 1
                             print(f'The response given is: {response.choices[0].message.content}')
@@ -113,7 +121,7 @@ def run_deepseek(save_result=False, **kwargs):
         numbers.sort()
         for number in numbers:
             id_pred_map[number] = 1
-        print(f'Current Progress: {round(((i+1) / len(data["task_id"].unique())) * 100, 1)}%\n '
+        print(f'Current Progress: {round(((i + 1) / len(data["task_id"].unique())) * 100, 1)}%\n '
               f'Task ID: {task_id} Candidates shortlisted are: {numbers}')
     # 提取结果
     pred = pd.DataFrame(list(id_pred_map.items()), columns=['id', 'pred'])
