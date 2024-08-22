@@ -50,12 +50,13 @@ def summary_writer(information, mandate, task_id, detail, client, model, stage):
                 file.write(summary)
     else:
         file_path = os.path.join(folder_path, "summary.txt")
-        try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                summary = file.read()
-        except UnicodeDecodeError:
-            with open(file_path, 'r', encoding='gbk') as file:
-                summary = file.read()
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    summary = file.read()
+            except UnicodeDecodeError:
+                with open(file_path, 'r', encoding='gbk') as file:
+                    summary = file.read()
         else:
             prompt = (f'You are a researcher studying the qualities of successful candidates for {mandate} in the '
                       f'United Nations Human Rights Council. The candidates information in these UNHRC meetings are '
