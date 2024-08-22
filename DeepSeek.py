@@ -102,12 +102,13 @@ def run_deepseek(save_result=False, **kwargs):
                                 break
                             else:
                                 retries += 1
-                                print(f'The response given is: {response.choices[0].message.content}')
-                                print('Error occurred, retrying...')
+                                print(f'ERROR: The response given is: {response.choices[0].message.content}\n'
+                                      f'The number of candidates given is incorrect({count} candidates needed), '
+                                      f'retrying......')
                         else:
                             retries += 1
-                            print(f'The response given is: {response.choices[0].message.content}')
-                            print('Error occurred, retrying...')
+                            print(f'ERROR: The response given is: {response.choices[0].message.content}\n'
+                                  f'Response format is wrong, retrying......')
                     group = group[group['id'].isin(numbers_temp)]
                     new_data = task_df.sample(1)
                     group = pd.concat([group, new_data])
