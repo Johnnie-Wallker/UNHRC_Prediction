@@ -24,56 +24,36 @@ def summary_writer(information, mandate, task_id, detail, client, model, stage):
     os.makedirs(folder_path, exist_ok=True)
     if detail:
         file_path = os.path.join(folder_path, "summary_detail.txt")
-        if os.path.exists(file_path):
-            try:
-                with open(file_path, 'r', encoding='utf-8') as file:
-                    summary = file.read()
-            except UnicodeDecodeError:
-                with open(file_path, 'r', encoding='gbk') as file:
-                    summary = file.read()
-        else:
-            prompt = (f'You are a researcher studying the qualities of successful candidates for {mandate} in the '
-                      f'United Nations Human Rights Council. The candidates information in these UNHRC meetings are '
-                      f'{information}\nReferring to this specific mandate, summarise the key features of the '
-                      f'shortlisted candidates , ensure that your summary is not vague and ambiguous, this summary '
-                      f'should aim to provide a clear guideline towards candidate selection process in the UNHRC. '
-                      f'Do not mention the specific candidate IDs in your summary.')
-            response = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "user", "content": prompt},
-                ],
-                stream=False
-            )
-            summary = response.choices[0].message.content
-            with open(file_path, 'w', encoding='utf-8') as file:
-                file.write(summary)
+    elif detail == 'Education':
+        file_path = os.path.join(folder_path, "summary_edu.txt")
+    elif detail == 'Work':
+        file_path = os.path.join(folder_path, "summary_work.txt")
     else:
         file_path = os.path.join(folder_path, "summary.txt")
-        if os.path.exists(file_path):
-            try:
-                with open(file_path, 'r', encoding='utf-8') as file:
-                    summary = file.read()
-            except UnicodeDecodeError:
-                with open(file_path, 'r', encoding='gbk') as file:
-                    summary = file.read()
-        else:
-            prompt = (f'You are a researcher studying the qualities of successful candidates for {mandate} in the '
-                      f'United Nations Human Rights Council. The candidates information in these UNHRC meetings are '
-                      f'{information}\nReferring to this specific mandate, summarise the key features of the '
-                      f'shortlisted candidates , ensure that your summary is not vague and ambiguous, this summary '
-                      f'should aim to provide a clear guideline towards candidate selection process in the UNHRC. '
-                      f'Do not mention the specific candidate IDs in your summary.')
-            response = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "user", "content": prompt},
-                ],
-                stream=False
-            )
-            summary = response.choices[0].message.content
-            with open(file_path, 'w', encoding='utf-8') as file:
-                file.write(summary)
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                summary = file.read()
+        except UnicodeDecodeError:
+            with open(file_path, 'r', encoding='gbk') as file:
+                summary = file.read()
+    else:
+        prompt = (f'You are a researcher studying the qualities of successful candidates for {mandate} in the '
+                  f'United Nations Human Rights Council. The candidates information in these UNHRC meetings are '
+                  f'{information}\nReferring to this specific mandate, summarise the key features of the '
+                  f'shortlisted candidates , ensure that your summary is not vague and ambiguous, this summary '
+                  f'should aim to provide a clear guideline towards candidate selection process in the UNHRC. '
+                  f'Do not mention the specific candidate IDs in your summary.')
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "user", "content": prompt},
+            ],
+            stream=False
+        )
+        summary = response.choices[0].message.content
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(summary)
 
     return summary
 
