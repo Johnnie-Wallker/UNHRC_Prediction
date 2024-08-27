@@ -2,14 +2,14 @@ from DeepSeek import run_deepseek
 from openai import OpenAI
 
 config = {
-    'prompt_type': 'None',
-    'stage':1,
-    'shuffle': False,
-    'detail': False,
-    'vote_count': 1,
-    'n_retry': 5,
-    'do_small_group': True,
-    'client': OpenAI(api_key="sk-a5ed383c9510411fa288cf6d2bd8b52d", base_url="https://api.deepseek.com"),
+    'prompt_type': 'Train+Summary',
+    'stage':2,
+    'shuffle': True,
+    'detail': True,
+    'vote_count': 15,
+    'n_retry': 10,
+    'do_small_group': False,
+    'client': OpenAI(api_key="sk-668cbc8b98014bc29f460fe20ff7a225", base_url="https://api.deepseek.com"),
     'model': "deepseek-chat"
 }
 
