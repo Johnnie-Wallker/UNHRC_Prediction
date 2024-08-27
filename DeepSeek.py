@@ -66,12 +66,13 @@ def run_deepseek(save_result=False, **kwargs):
                             break
                         else:
                             retries += 1
-                            print(f'The response given is: {response.choices[0].message.content}')
-                            print('Error occurred, retrying...')
+                            print(f'ERROR: The response given is: {response.choices[0].message.content}\n'
+                                  f'The number of candidates given is incorrect({count} candidates needed), '
+                                  f'retrying......')
                     else:
                         retries += 1
-                        print(f'The response given is: {response.choices[0].message.content}')
-                        print('Error occurred, retrying...')
+                        print(f'ERROR: The response given is: {response.choices[0].message.content}\n'
+                              f'Response format is wrong, retrying......')
             else:
                 numbers_temp = None
                 while len(task_df) != 0:
