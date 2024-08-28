@@ -5,10 +5,10 @@ config = {
     'prompt_type': 'None',
     'stage': 1,
     'shuffle': False,
-    'detail': False,
+    'detail': True,
     'vote_count': 1,
     'n_retry': 10,
-    'do_small_group': False,
+    'do_small_group': True,
     'client': OpenAI(api_key="sk-668cbc8b98014bc29f460fe20ff7a225", base_url="https://api.deepseek.com"),
     'model': "deepseek-chat"
 }

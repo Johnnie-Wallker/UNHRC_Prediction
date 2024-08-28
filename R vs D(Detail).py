@@ -35,10 +35,9 @@ recall_random_detail = [
 ]
 
 combined_data = pd.DataFrame({
-    'Accuracy': accuracy + accuracy_random+ accuracy_detail + accuracy_random_detail,
-    'Recall': recall + recall_random+ recall_detail + recall_random_detail,
-    'Group': ['DO+ND']*20 + ['DO+FD']*20
-             + ['RO+ND']*20 + ['RO+FD']*20
+    'Accuracy': accuracy + accuracy_random + accuracy_detail + accuracy_random_detail,
+    'Recall': recall + recall_random + recall_detail + recall_random_detail,
+    'Group': ['DO+ND']*20 + ['DO+FD']*20 + ['RO+ND']*20 + ['RO+FD']*20
 })
 
 
