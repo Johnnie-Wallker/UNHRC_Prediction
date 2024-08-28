@@ -1,4 +1,4 @@
-# Running the Model with `run_llm`
+# Running the LLM with `run_llm`, for XGBoost run XGBoost or XGBoost_WithDetail
 
 To execute the model using the `run_llm` function, configure the following parameters:
 
