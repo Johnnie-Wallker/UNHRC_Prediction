@@ -124,9 +124,14 @@ def run_deepseek(save_result=False, **kwargs):
     acc = accuracy_score(data['interviewed'], data['pred'])
     f1 = f1_score(data['interviewed'], data['pred'])
     if save_result:
-        if not kwargs['do_small_group']:
-            log_result(data, kwargs['stage'], 'DeepSeek', {kwargs['prompt_type']}, token_count)
-        else:
-            log_result(data, kwargs['stage'], 'DeepSeek', f"{kwargs['prompt_type']}_SmallGroup", token_count)
+        suffix = kwargs['prompt_type']
+        if kwargs['do_small_group']:
+            suffix += f'_SmallGroup'
+        if kwargs['detail']:
+            if kwargs['detail'] == 'Education' or 'Work':
+                suffix += f'_{kwargs["detail"]}'
+            else:
+                suffix += f'_FullDetail'
+        log_result(data, kwargs['stage'], 'DeepSeek', suffix, token_count)
 
     return {'accuracy': acc, 'f1_score': f1}
