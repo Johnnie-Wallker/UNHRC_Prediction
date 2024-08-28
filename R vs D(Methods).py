@@ -57,7 +57,7 @@ recall = {
 
 df_recalls = pd.DataFrame(recall)
 df_accuracies = pd.DataFrame(accuracy)
-fig, axes = plt.subplots(1, 2, figsize=(12, 6))
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 df_accuracies.boxplot(ax=axes[0])
 axes[0].set_title("Accuracy Distribution")
 axes[0].set_ylabel("Accuracy")
