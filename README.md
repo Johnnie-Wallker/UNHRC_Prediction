@@ -38,3 +38,6 @@ To execute the model using the `run_llm` function, configure the following param
 
 9. **`model`**: `object`
    - The LLM model used to generate responses.
+
+10. **`save_result`**: `Boolean`
+    - whether the prediction result is saved, if True, the result will be saved under Result_Round{stage}
