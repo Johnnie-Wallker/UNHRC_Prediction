@@ -7,7 +7,7 @@ from Result_Logger import log_result
 from collections import Counter
 
 
-def run_llm(save_result=False, **kwargs):
+def run_llm(**kwargs):
     data = pd.read_excel('data.xlsx')
     data = data_handler(data, kwargs['stage'])
     education = pd.read_excel('data.xlsx', sheet_name=1)

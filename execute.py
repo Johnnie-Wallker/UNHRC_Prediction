@@ -3,8 +3,9 @@ from ML import run_ml
 from openai import OpenAI
 from xgboost import XGBClassifier
 
+# 'model': 'deepseek-chat',
 config = {
-    'stage': 1,
+    'stage': 2,
     'detail': 'Work',
     'model': XGBClassifier(objective='binary:logistic', seed=1, enable_categorical=True),
     'save_result': False,

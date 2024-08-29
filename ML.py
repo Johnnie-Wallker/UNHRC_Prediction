@@ -5,7 +5,7 @@ from Data_Handler import data_handler
 from Result_Logger import log_result
 
 
-def run_ml(save_result, **kwargs):
+def run_ml(**kwargs):
     data = pd.read_excel('data.xlsx')
     data = data_handler(data, kwargs['stage'])
     data['other nationality_final'] = data['other nationality_final'].astype('category')
