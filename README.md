@@ -1,7 +1,26 @@
-# Running the LLM with `run_llm`, for XGBoost run `XGBoost` or `XGBoost_WithDetail`
+# Running our method with `execute.py`
 
-To execute the model using the `run_llm` function, configure the following parameters:
+To execute, configure the following parameters:
 
+1. **`stage`**: `int`
+   - Indicates the stage of the selection process, 1 or 2.
+
+2. **`detail`**: `Boolean` or `string`
+   - Specifies the level of detail to include:
+   - - `False` for no detail
+     - `True` for all details
+     - `'Education'` for education details only
+     - `'Work'` for work details only
+
+3. **`model`**: `str` or others
+   - an object string for llm models such as `'deepseek-chat'`
+   - or other traditional machine learning models such as `XGBClassifier()`
+
+4. **`save_result`**: `Boolean`
+    - whether the prediction result is saved, if True, the result will be saved under Result_Round{stage}
+
+---
+### The following parameters only apply to LLM methods:
 1. **`prompt_type`**: `string`
    - Specifies the type of prompt to use. Options include:
      - `'None'`: Default setting, only contains basic context and test data
@@ -11,33 +30,17 @@ To execute the model using the `run_llm` function, configure the following param
      - `'Ruleset'`: Add ruleset generated using respective training samples when applicable to default
      - `'Prototype'`: Add prototype generated using respective training samples when applicable to default
 
-2. **`stage`**: `int`
-   - Indicates the stage of the process. Use `1` for round 1 or `2` for round 2.
-
-3. **`shuffle`**: `Boolean`
+2. **`shuffle`**: `Boolean`
    - Determines whether the data should be shuffled.
 
-4. **`detail`**: `Boolean` or `string`
-   - Specifies the level of detail to include:
-   - - `False` for no detail
-     - `True` for all details
-     - `'Education'` for education details only
-     - `'Work'` for work details only
-
-5. **`vote_count`**: `int`
+3. **`vote_count`**: `int`
    - Specifies the number of LLM agents that will vote.
 
-6. **`n_retry`**: `int`
+4. **`n_retry`**: `int`
    - Sets the maximum number of retries for the LLM response to conform to the designated format.
 
-7. **`do_small_group`**: `Boolean`
+5. **`do_small_group`**: `Boolean`
    - Indicates whether the data should be processed in smaller groups repeatedly.
 
-8. **`client`**: `OpenAI object`
+6. **`client`**: `OpenAI object`
    - Your OpenAI API key and base URL.
-
-9. **`model`**: `object`
-   - The LLM model used to generate responses.
-
-10. **`save_result`**: `Boolean`
-    - whether the prediction result is saved, if True, the result will be saved under Result_Round{stage}

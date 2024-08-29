@@ -7,7 +7,7 @@ from Result_Logger import log_result
 from collections import Counter
 
 
-def run_deepseek(save_result=False, **kwargs):
+def run_llm(save_result=False, **kwargs):
     data = pd.read_excel('data.xlsx')
     data = data_handler(data, kwargs['stage'])
     education = pd.read_excel('data.xlsx', sheet_name=1)
@@ -123,7 +123,7 @@ def run_deepseek(save_result=False, **kwargs):
     data = pd.merge(data, pred, on='id', how='left')
     acc = accuracy_score(data['interviewed'], data['pred'])
     f1 = f1_score(data['interviewed'], data['pred'])
-    if save_result:
+    if kwargs['save_result']:
         suffix = kwargs['prompt_type']
         if kwargs['do_small_group']:
             suffix += f'_SmallGroup'
