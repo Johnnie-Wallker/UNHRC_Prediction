@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-prompt_type = 'Summary'
+prompt_type = 'None'
 df1 = pd.read_csv(f'Result_Round1/result_DeepSeek_{prompt_type}_SmallGroup.csv')
 df2 = pd.read_csv(f'Result_Round1/result_DeepSeek_{prompt_type}.csv')
 plt.figure(figsize=(15, 6))

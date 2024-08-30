@@ -10,6 +10,7 @@ from collections import Counter
 def run_llm(**kwargs):
     data = pd.read_excel('data.xlsx')
     data = data_handler(data, kwargs['stage'])
+    data = data.sample(frac=1, random_state=1).reset_index(drop=True)
     education = pd.read_excel('data.xlsx', sheet_name=1)
     work = pd.read_excel('data.xlsx', sheet_name=2)
     data = data.fillna(0)
@@ -24,15 +25,13 @@ def run_llm(**kwargs):
     work['id'] = work['id'].apply(lambda x: int_md5_transform(num=x))
     for i in range(len(data['task_id'].unique())):
         task_id = data['task_id'].unique()[i]
-        task_df = data[data['task_id'] == task_id]
-        count = task_df['count'].max()
-        group = task_df.sample(count + 1)
-        task_df = task_df[~task_df['id'].isin(group['id'])]
+        count = data[data['task_id'] == task_id]['count'].max()
         response = None
         numbers = []
         for j in range(kwargs['vote_count']):
+            task_df = data[data['task_id'] == task_id]
             retries = 0
-            if not kwargs['do_small_group'] or len(task_df) == 0:
+            if not kwargs['do_small_group'] or len(task_df) <= min(kwargs['smallgroup_threshold'], count*2):
                 task_description = prompt_generator(data=data,
                                                     education=education,
                                                     work=work,
@@ -67,6 +66,8 @@ def run_llm(**kwargs):
                         print(f'ERROR: The response given is: {response.choices[0].message.content}\n'
                               f'Response format is wrong, retrying......')
             else:
+                group = task_df.sample(count*2)
+                task_df = task_df[~task_df['id'].isin(group['id'])]
                 numbers_temp = None
                 while len(task_df) != 0:
                     task_description = prompt_generator(data=data,
@@ -104,7 +105,10 @@ def run_llm(**kwargs):
                             print(f'ERROR: The response given is: {response.choices[0].message.content}\n'
                                   f'Response format is wrong, retrying......')
                     group = group[group['id'].isin(numbers_temp)]
-                    new_data = task_df.sample(1)
+                    if len(task_df) >= count:
+                        new_data = task_df.sample(count)
+                    else:
+                        new_data = task_df
                     group = pd.concat([group, new_data])
                     group = group.sample(frac=1).reset_index(drop=True)
                     task_df = task_df[~task_df['id'].isin(new_data['id'])]
@@ -127,11 +131,6 @@ def run_llm(**kwargs):
         suffix = kwargs['prompt_type']
         if kwargs['do_small_group']:
             suffix += f'_SmallGroup'
-        if kwargs['detail']:
-            if kwargs['detail'] == 'Education' or 'Work':
-                suffix += f'_{kwargs["detail"]}'
-            else:
-                suffix += f'_FullDetail'
         log_result(data, kwargs['stage'], 'DeepSeek', suffix, token_count)
 
     return {'accuracy': acc, 'f1_score': f1}

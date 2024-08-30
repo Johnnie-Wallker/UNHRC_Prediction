@@ -7,7 +7,6 @@ def candidate_information(task_data, edu_data, work_data, detail):
     edu_data = edu_data[['id', 'eduinfo', 'years-final']]
     work_data['years'] = work_data['years'].str.strip("'\"")
     work_data = work_data[['id', 'workinfo', 'years']]
-    # 将每名参选者的信息添加
     for _, row in task_data.iterrows():
         candidate_id = row['id']
         he_she = "He" if row['gender_final'] == 1 else "She"
@@ -19,7 +18,6 @@ def candidate_information(task_data, edu_data, work_data, detail):
             f'Candidate ID: {row["id"]}, {he_she} is a citizen of {nationality}. '
             f'{his_her} age is {row["age"]}. '
         )
-        # 语言能力
         languages = {
             'english_level': row['english_level'],
             'french_level': row['french_level'],
@@ -32,7 +30,6 @@ def candidate_information(task_data, edu_data, work_data, detail):
             [f"{level} {language.replace('_', ' ')}" for language, level in languages.items() if level != 'no'])
         candidate_info += f"{he_she} has {language_info}.\n"
         if not detail:
-            # 背景信息
             backgrounds = {
                 'legal background': row['lawflag'],
                 'religious background': row['church_flag'],
@@ -45,7 +42,6 @@ def candidate_information(task_data, edu_data, work_data, detail):
             background_info = ', '.join([f"{background}" for background, flag in backgrounds.items() if flag == 1])
             if background_info:
                 candidate_info += f"{he_she} has {background_info}. "
-            # 当前类型
             current_job_flags = {
                 'academic': row['academic_current_flag'],
                 'IGO': row['internationalorg_current_flag'],

@@ -40,7 +40,7 @@ To execute, configure the following parameters:
    - Sets the maximum number of retries for the LLM response to conform to the designated format.
 
 5. **`do_small_group`**: `Boolean`
-   - Indicates whether the data should be processed in smaller groups repeatedly.
+   - Indicates whether the data should be processed in smaller groups repeatedly(i.e. only twice the size of the desired candidate size is used each time), this will only apply to those tasks where the number of candidates exceed `sg_threshold`, which default is set to 30.
 
 6. **`client`**: `OpenAI object`
    - Your OpenAI API key and base URL.

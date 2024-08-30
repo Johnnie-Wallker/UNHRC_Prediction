@@ -69,11 +69,8 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
             task_data = task_data.sample(frac=1).reset_index(drop=True)
     edu_data = education[education['id'].isin(task_data['id'])]
     work_data = work[work['id'].isin(task_data['id'])]
-    # 提取每个职位对应的全部task_id
     mandate_groups = data.groupby('mandate')['task_id'].apply(lambda x: list(x.unique()))
-    # 过滤出多个task_id的职位
     mandate_groups = mandate_groups[mandate_groups.apply(len) > 1]
-    # 获得与每个task_id相同职位的task_id
     task_id_map = {task_id: [tid for tid in task_ids if tid != task_id]
                    for task_ids in mandate_groups for task_id in task_ids}
     task_id_map = pd.DataFrame(task_id_map.items(), columns=['task_id', 'related_task_ids'])
@@ -102,7 +99,7 @@ def prompt_generator(data, education, work, task_id, prompt_type, client, model,
                 f'any candidate from any previous meetings, only consider those in the information below.\n'
                 f'The candidates information are:\n'
             )
-            description += candidate_information(task_data, edu_data, work_data, detail) + "\n!!!"
+            description += candidate_information(task_data, edu_data, work_data, detail) + "\n"
         if prompt_type == 'Summary':
             summary = summary_writer(information, row['mandate'], task_id, detail, client, model, stage)
             description = (
