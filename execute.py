@@ -14,7 +14,7 @@ config = {
     'n_retry': 10,
     'do_small_group': False,
     'smallgroup_threshold': 30,
-    'client': OpenAI(api_key="sk-668cbc8b98014bc29f460fe20ff7a225", base_url="https://api.deepseek.com"),
+    'client': OpenAI(api_key="your-api-key", base_url="your-url"),
 }
 
 if isinstance(config['model'], str):
