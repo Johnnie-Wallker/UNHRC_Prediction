@@ -5,9 +5,9 @@ from Data_Handler import data_handler
 from Result_Logger import log_result
 
 
-def run_ml(**kwargs):
+def run_ml(config):
     data = pd.read_excel('data.xlsx')
-    data = data_handler(data, kwargs['stage'])
+    data = data_handler(data, config['stage'])
     data['other nationality_final'] = data['other nationality_final'].astype('category')
     education = pd.read_excel('data.xlsx', sheet_name=1)
     work = pd.read_excel('data.xlsx', sheet_name=2)
@@ -15,14 +15,14 @@ def run_ml(**kwargs):
     work = work[['id', 'title', 'orz', 'country_final']]
     education = education.dropna()
     work = work.dropna()
-    if kwargs['detail']:
-        if kwargs['detail'] != 'Work':
+    if config['detail']:
+        if config['detail'] != 'Work':
             education = pd.get_dummies(education,
                                        columns=education.columns.difference(['id'])).groupby(
                 'id').max().reset_index().astype(int)
             data = pd.merge(data, education, on='id', how='outer')
             data = data.dropna(subset=['interviewed'])
-        if kwargs['detail'] != 'Education':
+        if config['detail'] != 'Education':
             work = pd.get_dummies(work, columns=work.columns.difference(['id'])).groupby(
                 'id').max().reset_index().astype(int)
             data = pd.merge(data, work, on='id', how='outer')
@@ -30,18 +30,18 @@ def run_ml(**kwargs):
         original_columns = data.columns.tolist()
         new_columns = original_columns[:29] + [f'feature_{i}' for i in range(1, len(original_columns) - 28)]
         data.columns = new_columns
-    model = kwargs['model']
+    model = config['model']
     pred = pd.DataFrame(modeval(model, data))
     data = pd.merge(data, pred, on='id', how='left')
     acc = accuracy_score(data['interviewed'], data['pred'])
     f1 = f1_score(data['interviewed'], data['pred'])
-    if kwargs['save_result']:
+    if config['save_result']:
         suffix = ''
-        if kwargs['detail']:
-            if kwargs['detail'] == 'Education' or 'Work':
-                suffix += f'_{kwargs["detail"]}'
+        if config['detail']:
+            if config['detail'] == 'Education' or 'Work':
+                suffix += f'_{config["detail"]}'
             else:
                 suffix += f'_FullDetail'
-        log_result(data, kwargs['stage'], f'XGBoost_{suffix}')
+        log_result(data, config['stage'], f'XGBoost_{suffix}')
 
     return {'accuracy': acc, 'f1_score': f1}

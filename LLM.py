@@ -7,9 +7,9 @@ from Result_Logger import log_result
 from collections import Counter
 
 
-def run_llm(**kwargs):
+def run_llm(config):
     data = pd.read_excel('data.xlsx')
-    data = data_handler(data, kwargs['stage'])
+    data = data_handler(data, config['stage'])
     data = data.sample(frac=1, random_state=1).reset_index(drop=True)
     education = pd.read_excel('data.xlsx', sheet_name=1)
     work = pd.read_excel('data.xlsx', sheet_name=2)
@@ -28,23 +28,23 @@ def run_llm(**kwargs):
         count = data[data['task_id'] == task_id]['count'].max()
         response = None
         numbers = []
-        for j in range(kwargs['vote_count']):
+        for j in range(config['vote_count']):
             task_df = data[data['task_id'] == task_id]
             retries = 0
-            if not kwargs['do_small_group'] or len(task_df) <= min(kwargs['smallgroup_threshold'], count*2):
+            if not config['do_small_group'] or len(task_df) <= min(config['smallgroup_threshold'], count * 2):
                 task_description = prompt_generator(data=data,
                                                     education=education,
                                                     work=work,
                                                     task_id=task_id,
-                                                    prompt_type=kwargs['prompt_type'],
-                                                    stage=kwargs['stage'],
-                                                    shuffle=kwargs['shuffle'],
-                                                    model=kwargs['model'],
-                                                    client=kwargs['client'],
-                                                    detail=kwargs['detail'])
-                while retries < kwargs['n_retry']:
-                    response = kwargs['client'].chat.completions.create(
-                        model=kwargs['model'],
+                                                    prompt_type=config['prompt_type'],
+                                                    stage=config['stage'],
+                                                    shuffle=config['shuffle'],
+                                                    model=config['model'],
+                                                    client=config['client'],
+                                                    detail=config['detail'])
+                while retries < config['n_retry']:
+                    response = config['client'].chat.completions.create(
+                        model=config['model'],
                         messages=[
                             {"role": "user", "content": f'{task_description}'},
                         ],
@@ -74,16 +74,16 @@ def run_llm(**kwargs):
                                                         education=education,
                                                         work=work,
                                                         task_id=task_id,
-                                                        prompt_type=kwargs['prompt_type'],
-                                                        stage=kwargs['stage'],
-                                                        shuffle=kwargs['shuffle'],
-                                                        model=kwargs['model'],
-                                                        client=kwargs['client'],
-                                                        detail=kwargs['detail'],
+                                                        prompt_type=config['prompt_type'],
+                                                        stage=config['stage'],
+                                                        shuffle=config['shuffle'],
+                                                        model=config['model'],
+                                                        client=config['client'],
+                                                        detail=config['detail'],
                                                         small_group=group)
-                    while retries < kwargs['n_retry']:
-                        response = kwargs['client'].chat.completions.create(
-                            model=kwargs['model'],
+                    while retries < config['n_retry']:
+                        response = config['client'].chat.completions.create(
+                            model=config['model'],
                             messages=[
                                 {"role": "user", "content": f'{task_description}'},
                             ],
@@ -127,10 +127,10 @@ def run_llm(**kwargs):
     data = pd.merge(data, pred, on='id', how='left')
     acc = accuracy_score(data['interviewed'], data['pred'])
     f1 = f1_score(data['interviewed'], data['pred'])
-    if kwargs['save_result']:
-        suffix = kwargs['prompt_type']
-        if kwargs['do_small_group']:
+    if config['save_result']:
+        suffix = config['prompt_type']
+        if config['do_small_group']:
             suffix += f'_SmallGroup'
-        log_result(data, kwargs['stage'], 'DeepSeek', suffix, token_count)
+        log_result(data, config['stage'], 'DeepSeek', suffix, token_count)
 
     return {'accuracy': acc, 'f1_score': f1}

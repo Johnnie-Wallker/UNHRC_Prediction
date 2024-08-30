@@ -18,7 +18,7 @@ config = {
 }
 
 if isinstance(config['model'], str):
-    results = run_llm(**config)
+    results = run_llm(config)
 else:
-    results = run_ml(**config)
+    results = run_ml(config)
 print(f'准确率为：{round(results["accuracy"], 3)} 召回率为：{round(results["f1_score"], 3)}')
